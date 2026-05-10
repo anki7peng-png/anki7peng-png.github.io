@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiMo V2.5 TTS</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f7; color: #1d1d1f; min-height: 100vh; }
+  .container { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #86868b; font-size: 14px; margin-bottom: 32px; }
+  .card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  label { display: block; font-size: 13px; font-weight: 600; color: #6e6e73; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type="text"], input[type="password"], textarea, select {
+    width: 100%; padding: 10px 14px; border: 1px solid #d2d2d7; border-radius: 10px;
+    font-size: 15px; outline: none; transition: border-color 0.2s; background: #fff;
+  }
+  input:focus, textarea:focus, select:focus { border-color: #0071e3; }
+  textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+  .row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .row > * { flex: 1; }
+  .row label { margin-bottom: 6px; }
+  .mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .mode-tab {
+    flex: 1; padding: 10px; text-align: center; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 500; border: 1.5px solid #d2d2d7; background: #fff; transition: all 0.2s;
+  }
+  .mode-tab.active { border-color: #0071e3; background: #0071e3; color: #fff; }
+  .mode-tab:hover:not(.active) { border-color: #0071e3; color: #0071e3; }
+  button.primary {
+    width: 100%; padding: 14px; border: none; border-radius: 12px; background: #0071e3;
+    color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  }
+  button.primary:hover { background: #0077ed; }
+  button.primary:disabled { background: #b0b0b0; cursor: not-allowed; }
+  .status { margin-top: 12px; font-size: 14px; color: #86868b; min-height: 20px; }
+  .status.error { color: #ff3b30; }
+  .status.success { color: #34c759; }
+  .audio-result { margin-top: 16px; }
+  .audio-result audio { width: 100%; border-radius: 10px; }
+  .file-upload {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1.5px dashed #d2d2d7; border-radius: 10px; cursor: pointer; transition: border-color 0.2s;
+  }
+  .file-upload:hover { border-color: #0071e3; }
+  .file-upload input { display: none; }
+  .file-upload .label { font-size: 14px; color: #6e6e73; }
+  .file-upload .filename { font-size: 14px; font-weight: 500; color: #1d1d1f; }
+  .hidden { display: none; }
+  .spinner {
+    display: inline-block; width: 16px; height: 16px; border: 2px solid #fff;
+    border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .api-key-row { display: flex; gap: 8px; align-items: flex-end; }
+  .api-key-row input { flex: 1; }
+  .toggle-vis {
+    padding: 10px; border: 1px solid #d2d2d7; border-radius: 10px; background: #fff;
+    cursor: pointer; font-size: 14px; white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>MiMo V2.5 TTS</h1>
+  <p class="subtitle">API Key 仅存在浏览器本地，不会上传到任何服务器</p>
+
+  <div class="card">
+    <div class="api-key-row">
+      <div style="flex:1">
+        <label>API Key</label>
+        <input type="password" id="apiKey" placeholder="输入你的 MIMO_API_KEY">
+      </div>
+      <button class="toggle-vis" onclick="toggleKeyVis()">显示</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="preset" onclick="switchMode('preset')">预置音色</div>
+      <div class="mode-tab" data-mode="design" onclick="switchMode('design')">音色设计</div>
+      <div class="mode-tab" data-mode="clone" onclick="switchMode('clone')">音色克隆</div>
+    </div>
+
+    <!-- 预置音色 -->
+    <div id="mode-preset">
+      <div class="row">
+        <div>
+          <label>音色</label>
+          <select id="voice">
+            <option value="冰糖">冰糖 (中文女·活泼)</option>
+            <option value="茉莉">茉莉 (中文女·知性)</option>
+            <option value="苏打">苏打 (中文男·阳光)</option>
+            <option value="白桦">白桦 (中文男·成熟)</option>
+            <option value="Mia">Mia (EN·Lively)</option>
+            <option value="Chloe">Chloe (EN·Sweet)</option>
+            <option value="Milo">Milo (EN·Sunny)</option>
+            <option value="Dean">Dean (EN·Steady)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 音色设计 -->
+    <div id="mode-design" class="hidden">
+      <label>音色描述</label>
+      <textarea id="voiceDesc" placeholder="例如：中年男性，嗓音低沉有磁性，像纪录片旁白解说员"></textarea>
+    </div>
+
+    <!-- 音色克隆 -->
+    <div id="mode-clone" class="hidden">
+      <label>参考音频 (mp3/wav, &le;10MB)</label>
+      <div class="file-upload" onclick="document.getElementById('voiceFile').click()">
+        <span class="label" id="fileLabel">点击选择音频文件</span>
+        <span class="filename" id="fileName"></span>
+        <input type="file" id="voiceFile" accept=".mp3,.wav,audio/mpeg,audio/wav">
+      </div>
+    </div>
+
+    <div style="margin-top: 16px">
+      <label>风格指令 (可选)</label>
+      <input type="text" id="context" placeholder="例如：用温柔的语气，语速稍慢，带着笑意">
+    </div>
+
+    <div style="margin-top: 16px">
+      <label>要合成的文字</label>
+      <textarea id="text" placeholder="输入要合成语音的文字内容&#10;支持音频标签：（紧张，深呼吸）呼……冷静，冷静。"></textarea>
+    </div>
+
+    <div style="margin-top: 20px">
+      <button class="primary" id="btnGenerate" onclick="generate()">生成语音</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="audio-result hidden" id="audioResult">
+      <audio id="audioPlayer" controls></audio>
+      <div style="margin-top:8px; text-align:right;">
+        <a id="downloadLink" href="#" download="mimo_tts_output.wav" style="color:#0071e3; font-size:14px;">下载音频</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://token-plan-cn.xiaomimimo.com/v1/chat/completions';
+let currentMode = 'preset';
+let voiceBase64 = null;
+
+// 从 localStorage 恢复 API Key
+const savedKey = localStorage.getItem('mimo_api_key');
+if (savedKey) document.getElementById('apiKey').value = savedKey;
+
+document.getElementById('apiKey').addEventListener('input', e => {
+  localStorage.setItem('mimo_api_key', e.target.value);
+});
+
+document.getElementById('voiceFile').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    setStatus('文件超过 10MB 限制', true);
+    return;
+  }
+  document.getElementById('fileLabel').textContent = '已选择：';
+  document.getElementById('fileName').textContent = file.name;
+  const buf = await file.arrayBuffer();
+  voiceBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+  setStatus('');
+});
+
+function toggleKeyVis() {
+  const inp = document.getElementById('apiKey');
+  const btn = document.querySelector('.toggle-vis');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '隐藏'; }
+  else { inp.type = 'password'; btn.textContent = '显示'; }
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.getElementById('mode-preset').classList.toggle('hidden', mode !== 'preset');
+  document.getElementById('mode-design').classList.toggle('hidden', mode !== 'design');
+  document.getElementById('mode-clone').classList.toggle('hidden', mode !== 'clone');
+}
+
+function setStatus(msg, isError = false) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (isError ? ' error' : msg ? ' success' : '');
+}
+
+function getMime(filename) {
+  if (filename.endsWith('.wav')) return 'audio/wav';
+  return 'audio/mpeg';
+}
+
+async function generate() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) { setStatus('请先输入 API Key', true); return; }
+
+  const text = document.getElementById('text').value.trim();
+  if (!text) { setStatus('请输入要合成的文字', true); return; }
+
+  const context = document.getElementById('context').value.trim();
+
+  let model, audioConfig, messages;
+
+  if (currentMode === 'preset') {
+    model = 'mimo-v2.5-tts';
+    const voice = document.getElementById('voice').value;
+    audioConfig = { format: 'wav', voice };
+    messages = [];
+    if (context) messages.push({ role: 'user', content: context });
+    messages.push({ role: 'assistant', content: text });
+  }
+  else if (currentMode === 'design') {
+    const desc = document.getElementById('voiceDesc').value.trim();
+    if (!desc) { setStatus('请输入音色描述', true); return; }
+    model = 'mimo-v2.5-tts-voicedesign';
+    audioConfig = { format: 'wav' };
+    messages = [
+      { role: 'user', content: desc },
+      { role: 'assistant', content: text }
+    ];
+  }
+  else if (currentMode === 'clone') {
+    if (!voiceBase64) { setStatus('请上传参考音频文件', true); return; }
+    model = 'mimo-v2.5-tts-voiceclone';
+    const fileName = document.getElementById('voiceFile').files[0].name;
+    const mime = getMime(fileName);
+    audioConfig = { format: 'wav', voice: `data:${mime};base64,${voiceBase64}` };
+    messages = [];
+    if (context) messages.push({ role: 'user', content: context });
+    else messages.push({ role: 'user', content: '' });
+    messages.push({ role: 'assistant', content: text });
+  }
+
+  const btn = document.getElementById('btnGenerate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>生成中...';
+  setStatus('正在调用 MiMo TTS API...');
+  document.getElementById('audioResult').classList.add('hidden');
+
+  try {
+    const resp = await fetch(API_BASE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': apiKey,
+      },
+      body: JSON.stringify({ model, messages, audio: audioConfig }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`HTTP ${resp.status}: ${errText}`);
+    }
+
+    const data = await resp.json();
+    const audioData = data.choices?.[0]?.message?.audio?.data;
+    if (!audioData) throw new Error('API 未返回音频数据');
+
+    const bytes = Uint8Array.from(atob(audioData), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: 'audio/wav' });
+    const url = URL.createObjectURL(blob);
+
+    const player = document.getElementById('audioPlayer');
+    player.src = url;
+    document.getElementById('downloadLink').href = url;
+    document.getElementById('audioResult').classList.remove('hidden');
+    setStatus('生成成功！');
+  } catch (err) {
+    setStatus(err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '生成语音';
+  }
+}
+</script>
+</body>
+</html>
