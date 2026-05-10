@@ -1,283 +1,317 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MiMo V2.5 TTS</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f7; color: #1d1d1f; min-height: 100vh; }
-  .container { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
-  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
-  .subtitle { color: #86868b; font-size: 14px; margin-bottom: 32px; }
-  .card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  label { display: block; font-size: 13px; font-weight: 600; color: #6e6e73; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  input[type="text"], input[type="password"], textarea, select {
-    width: 100%; padding: 10px 14px; border: 1px solid #d2d2d7; border-radius: 10px;
-    font-size: 15px; outline: none; transition: border-color 0.2s; background: #fff;
-  }
-  input:focus, textarea:focus, select:focus { border-color: #0071e3; }
-  textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-  .row { display: flex; gap: 12px; margin-bottom: 16px; }
-  .row > * { flex: 1; }
-  .row label { margin-bottom: 6px; }
-  .mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-  .mode-tab {
-    flex: 1; padding: 10px; text-align: center; border-radius: 10px; cursor: pointer;
-    font-size: 14px; font-weight: 500; border: 1.5px solid #d2d2d7; background: #fff; transition: all 0.2s;
-  }
-  .mode-tab.active { border-color: #0071e3; background: #0071e3; color: #fff; }
-  .mode-tab:hover:not(.active) { border-color: #0071e3; color: #0071e3; }
-  button.primary {
-    width: 100%; padding: 14px; border: none; border-radius: 12px; background: #0071e3;
-    color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s;
-  }
-  button.primary:hover { background: #0077ed; }
-  button.primary:disabled { background: #b0b0b0; cursor: not-allowed; }
-  .status { margin-top: 12px; font-size: 14px; color: #86868b; min-height: 20px; }
-  .status.error { color: #ff3b30; }
-  .status.success { color: #34c759; }
-  .audio-result { margin-top: 16px; }
-  .audio-result audio { width: 100%; border-radius: 10px; }
-  .file-upload {
-    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-    border: 1.5px dashed #d2d2d7; border-radius: 10px; cursor: pointer; transition: border-color 0.2s;
-  }
-  .file-upload:hover { border-color: #0071e3; }
-  .file-upload input { display: none; }
-  .file-upload .label { font-size: 14px; color: #6e6e73; }
-  .file-upload .filename { font-size: 14px; font-weight: 500; color: #1d1d1f; }
-  .hidden { display: none; }
-  .spinner {
-    display: inline-block; width: 16px; height: 16px; border: 2px solid #fff;
-    border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite;
-    vertical-align: middle; margin-right: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .api-key-row { display: flex; gap: 8px; align-items: flex-end; }
-  .api-key-row input { flex: 1; }
-  .toggle-vis {
-    padding: 10px; border: 1px solid #d2d2d7; border-radius: 10px; background: #fff;
-    cursor: pointer; font-size: 14px; white-space: nowrap;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>安琦的个人网站</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- 引入字体 -->
+    <!-- 引入图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 引入动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- 引入particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
-<div class="container">
-  <h1>MiMo V2.5 TTS</h1>
-  <p class="subtitle">API Key 仅存在浏览器本地，不会上传到任何服务器</p>
+    <div id="particles-js"></div>
+    <div class="cursor-glow"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="nav-container">
+        <div class="logo">ANQI</div>
+        <div class="nav-slider"></div>
+        <ul class="nav-links">
+            <li><a href="#" data-page="home" class="active">首页</a></li>
+            <li><a href="#" data-page="about">关于我</a></li>
+            <li><a href="#" data-page="projects">读的</a></li>
+            <li><a href="#" data-page="gallery">看的</a></li>
+            <li><a href="#" data-page="contact">找到我</a></li>
+        </ul>
+    </nav>
 
-  <div class="card">
-    <div class="api-key-row">
-      <div style="flex:1">
-        <label>API Key</label>
-        <input type="password" id="apiKey" placeholder="输入你的 MIMO_API_KEY">
-      </div>
-      <button class="toggle-vis" onclick="toggleKeyVis()">显示</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="mode-tabs">
-      <div class="mode-tab active" data-mode="preset" onclick="switchMode('preset')">预置音色</div>
-      <div class="mode-tab" data-mode="design" onclick="switchMode('design')">音色设计</div>
-      <div class="mode-tab" data-mode="clone" onclick="switchMode('clone')">音色克隆</div>
-    </div>
-
-    <!-- 预置音色 -->
-    <div id="mode-preset">
-      <div class="row">
-        <div>
-          <label>音色</label>
-          <select id="voice">
-            <option value="冰糖">冰糖 (中文女·活泼)</option>
-            <option value="茉莉">茉莉 (中文女·知性)</option>
-            <option value="苏打">苏打 (中文男·阳光)</option>
-            <option value="白桦">白桦 (中文男·成熟)</option>
-            <option value="Mia">Mia (EN·Lively)</option>
-            <option value="Chloe">Chloe (EN·Sweet)</option>
-            <option value="Milo">Milo (EN·Sunny)</option>
-            <option value="Dean">Dean (EN·Steady)</option>
-          </select>
+    <!-- Hero Section -->
+    <section id="home" class="hero page active">
+        <div class="hero-content">
+            <h1 class="glitch-text">P · ANQI</h1>
+            <div class="typing-text">最会健身的AI训练师</div>
+            <p class="hero-description">AI正在颠覆未来，拥抱AI，一起创造未来！</p>
         </div>
-      </div>
-    </div>
+    </section>
 
-    <!-- 音色设计 -->
-    <div id="mode-design" class="hidden">
-      <label>音色描述</label>
-      <textarea id="voiceDesc" placeholder="例如：中年男性，嗓音低沉有磁性，像纪录片旁白解说员"></textarea>
-    </div>
+    <!-- About Section -->
+    <section id="about" class="about page">
+        <div class="about-container">
+            <div class="about-image">
+                <div class="about-carousel">
+                    <div class="carousel-wrapper">
+                        <img src="images/portrait1.jpg" alt="个人照片1" class="carousel-item active">
+                        <img src="images/portrait2.jpg" alt="个人照片2" class="carousel-item">
+                        <img src="images/portrait3.jpg" alt="个人照片3" class="carousel-item">
+                    </div>
+                    <button class="carousel-btn prev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="carousel-dots"></div>
+                </div>
+            </div>
+            <div class="about-content">
+                <h2>关于我</h2>
+                <p>坚持每天精进，在学习中寻找乐趣，以踏实态度专研问题，用积极心态感染周围！</p>
+            </div>
+        </div>
+    </section>
 
-    <!-- 音色克隆 -->
-    <div id="mode-clone" class="hidden">
-      <label>参考音频 (mp3/wav, &le;10MB)</label>
-      <div class="file-upload" onclick="document.getElementById('voiceFile').click()">
-        <span class="label" id="fileLabel">点击选择音频文件</span>
-        <span class="filename" id="fileName"></span>
-        <input type="file" id="voiceFile" accept=".mp3,.wav,audio/mpeg,audio/wav">
-      </div>
-    </div>
+    <!-- Projects Section -->
+    <section id="projects" class="projects page">
+        <h2>读的</h2>
+        <div class="reading-container">
+            <!-- 左侧文章标题列表 -->
+            <div class="article-list">
+                <div class="article-title active" data-article="article1">本地部署 DeepSeek + 搭建私人知识库：我的实战经验分享</div>
+                <div class="article-title" data-article="article2">漫谈DeepSeek及其核心技术：低成本高效大模型的破局之路</div>
+                <div class="article-title" data-article="article3">AI革命的真正战场：超越聊天框的原生软件重构</div>
+                <div class="article-title" data-article="article4">深度探索AI大模型原理，它到底是如何工作的</div>
+                <div class="article-title" data-article="article5">人工智能神经网络基本原理</div>
+            </div>
+            
+            <!-- 右侧文章内容 -->
+            <div class="article-content">
+                <div id="article1" class="article active">
+                    <h3>本地部署 DeepSeek + 搭建私人知识库：我的实战经验分享</h3>
+                    <p><strong>一、先搞定 Ollama：让大模型跑在本地电脑上</strong><br>
+                        <strong>1. 下载 Ollama：傻瓜式安装，默认路径最省心</strong><br>
+新手建议直接去 Ollama 官网（直接百度 “Ollama 官网” 就能找到），根据系统下载对应的安装包（Windows 选.exe 格式）。安装时一路默认就行，虽然默认装在 C 盘，但别担心后续模型下载后可以手动转移路径（不过刚开始用默认设置完全够用，等熟练了再折腾路径也不迟）。
 
-    <div style="margin-top: 16px">
-      <label>风格指令 (可选)</label>
-      <input type="text" id="context" placeholder="例如：用温柔的语气，语速稍慢，带着笑意">
-    </div>
+安装完后，使用win+R打开终端，输入ollama然后回车就能看到ollama已经运行了。
+（如果这时候你想后续的模型不要下载到C盘，这个时候建议先不下载模型，直接去B占搜索如何修改模型存储路径的教程）<br>
+                        <strong>2. 下载 DeepSeek 模型：先从 1.5B 版本试水</strong><br>
+重点来了！新手千万别一上来就冲高版本！我用的是联想的一个轻薄笔记本，实测DeepSeek-1.5B版本最友好，运行流畅不卡顿。更高版本（比如 7B、14B）虽然能力强，但对电脑配置要求高，低配电脑可能直接卡死。等后面觉得 1.5B 不够用了，再升级也不迟～
 
-    <div style="margin-top: 16px">
-      <label>要合成的文字</label>
-      <textarea id="text" placeholder="输入要合成语音的文字内容&#10;支持音频标签：（紧张，深呼吸）呼……冷静，冷静。"></textarea>
-    </div>
+接下来就是下载模型了，还是同样的操作，win+r打开终端窗口，然后你可以在ollama官网上面直接找到deepseekR1的模型对应命令，网页上是有可以直接复制的按钮的，将复制下来的这段代码直接Ctrl+v在终端窗口中并回车，就可以看到它已经自动开始下载了（这里为了方便，我把我自己用的1.5b版本的命令放在下面了，大家可以自行CV）<br>
 
-    <div style="margin-top: 20px">
-      <button class="primary" id="btnGenerate" onclick="generate()">生成语音</button>
-    </div>
+{ollama run deepseek-r1:1.5b}<br>
 
-    <div class="status" id="status"></div>
-    <div class="audio-result hidden" id="audioResult">
-      <audio id="audioPlayer" controls></audio>
-      <div style="margin-top:8px; text-align:right;">
-        <a id="downloadLink" href="#" download="mimo_tts_output.wav" style="color:#0071e3; font-size:14px;">下载音频</a>
-      </div>
-    </div>
-  </div>
-</div>
+敲回车后，耐心等一会儿，下载完后，输入ollama list并回车能看到刚刚下载的模型，说明安装成功。<br>
+                        <strong>3. 启动模型：试试和 AI 对话</strong><br>
+这个时候你已经可以直接在终端窗口和deepseek直接对话了，试试发一句“你好”就能看到回复了，然后ollama还有一些其他的指令功能大家可以在网上或者使用AI模型自行搜索
 
-<script>
-const API_BASE = 'https://token-plan-cn.xiaomimimo.com/v1/chat/completions';
-let currentMode = 'preset';
-let voiceBase64 = null;
+到这一步本地部署deepseek就已经完成了，但是相信大部分人都不想对着这么丑的聊天窗口吧，下一步咱们给它配上一个好看的聊天窗口。</p>
+                    <p><strong>二、CherryStudio 登场：美化聊天窗口、简单化命令功能</strong><br>
+                        <strong>1. 安装 CherryStudio：官网下载，一路下一步</strong><br>  
+                       去 CherryStudio 官网（百度搜名称就能找到）下载 Windows 客户端，安装过程和普通软件一样，无脑点击 “下一步” 就行。打开后会看到清爽的界面，左边是功能栏，右边是操作区。<br>  
+                       <strong>2. 绑定本地模型：让 CherryStudio 找到你的 DeepSeek</strong><br>
+点击左下角 “设置（齿轮图标）”→“模型管理”，在 “添加模型” 里选择 “Ollama 本地模型”。这时候会自动扫描到刚才下载的deepseek-r1:1.5b，直接勾选就行。<br>
+                        <strong>3. 让 AI 能 “理解” 你的文档</strong><br>
+有很多朋友希望在本地搭建咱们的知识库，安全又便捷，搭建知识库必须先有一个嵌入模型，它的作用是把你的文档内容转化为 AI 能理解的 “语言”。这个模型同样能从ollama上面获取到，“登录官网”→“选择【embedding】按钮”，然后就可以下载你想要的嵌入模型了，我用的是bge-m3，同样在 Ollama 里下载，命令如下（直接复制）：<br>
 
-// 从 localStorage 恢复 API Key
-const savedKey = localStorage.getItem('mimo_api_key');
-if (savedKey) document.getElementById('apiKey').value = savedKey;
+{ollama pull bge-m3}<br>
 
-document.getElementById('apiKey').addEventListener('input', e => {
-  localStorage.setItem('mimo_api_key', e.target.value);
-});
+下载完后，回到 CherryStudio，在 “嵌入模型管理” 里添加这个模型，后续建知识库时会用到。<br>
+                        <strong>4. 新建知识库：把你的资料喂给 AI</strong><br>
+点击左侧 “知识库（文本页图标）”→“新建知识库”，名字随便起（比如 “我的学习笔记”），嵌入模型选择刚才添加的bge-m3。接下来有两种导入方式：
 
-document.getElementById('voiceFile').addEventListener('change', async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) {
-    setStatus('文件超过 10MB 限制', true);
-    return;
-  }
-  document.getElementById('fileLabel').textContent = '已选择：';
-  document.getElementById('fileName').textContent = file.name;
-  const buf = await file.arrayBuffer();
-  voiceBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-  setStatus('');
-});
+- 直接拖文件：支持 PDF、Word、TXT，把你想加入知识库的文档直接拖进窗口就行。
+- 手动上传：点击 “添加文件”，选择本地文件。
 
-function toggleKeyVis() {
-  const inp = document.getElementById('apiKey');
-  const btn = document.querySelector('.toggle-vis');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '隐藏'; }
-  else { inp.type = 'password'; btn.textContent = '显示'; }
-}
+上传后，系统会自动处理文档（这个过程可能需要几分钟，取决于文件大小），处理完后会显示 “已就绪”，说明知识库建好了。<br>
+                        <strong>5. 实战测试：让 AI 回答你的问题</strong><br>
+回到对话界面，先在聊天窗功能区选择刚才建的知识库，然后输入问题，模型就会根据你提供的知识进行推理和回答，超方便！</p>
+                    <p><strong>三、新手必看的避坑指南</strong><br>
+                        <strong>命令别手动输入！</strong> ：终端里的命令直接复制粘贴，尤其是英文冒号、斜杠，手动输错一个符号就会报错。实在不会操作，Ollama 官网和 CherryStudio 的帮助文档里都有详细命令示例，直接复制过来用。<br>  
+                       <strong>低配电脑优先选小版本</strong>：我一开始贪心试了 deepseek14B 版本，结果电脑直接卡住不动，任务管理器都差点打不开。新手先用 1.5B 练手，等熟悉流程了，电脑配置允许的话，再尝试更高版本。<br>
+                        <strong>文档格式别太复杂</strong>：优先上传纯文本类文件（TXT、Word），PDF 如果是扫描件（图片格式），AI 可能识别不了。如果是带表格、图表的文档，建议先转成 Word 再上传，识别率更高。
+</p>
+                        <div class="article-source">
+                            <p><strong>拓展资源</strong><br>
+                                最后对于一些强迫症同学不希望模型占用系统盘的，推荐这个博主的视频：<a href="https://www.bilibili.com/video/BV1pFjxzTEd5/?spm_id_from=333.337.search-card.all.click" target="_blank">https://www.bilibili.com/video/BV1pFjxzTEd5/?spm_id_from=333.337.search-card.all.click</a></p>
+                        </div>
+                    <div class="article-tags">
+                        <span class="article-tag">DeepSeek</span>
+                        <span class="article-tag">Ollama</span>
+                        <span class="article-tag">Cherry Studio</span>
+                    </div>
+                </div>
+                
+                <div id="article2" class="article">
+                    <h3>漫谈DeepSeek及其核心技术：低成本高效大模型的破局之路</h3>
+                    <p><strong>一、公司与模型概况：初创公司的惊人突破</strong><br>
+                        DeepSeek于2023年7月成立，作为幻方量化旗下子公司，一年内推出DeepSeek V2.5、V3、R1等多个模型，均采用MoE架构。其V3模型参数量达671B，激活参数仅37B，在开源模型中性能登顶，与GPT-4o等闭源模型比肩，而训练成本不到600万美元，推理成本低至百万Token输入1元，API定价仅为国内头部厂商的几十分之一。</p>
+                    <p><strong>二、核心技术：架构与训练的双重革新</strong><br>
+                        <strong>1. 网络架构创新</strong><br>  
+                        - <strong>DeepSeekMoE</strong>：引入无辅助损失的负载均衡策略，通过动态调整专家偏差项解决负载不均问题，减少知识冗余，提升训练效率。<br>  
+                        - <strong>MLA多头潜在注意力</strong>：通过低秩联合压缩KV缓存，相比传统MHA减少KV存储量，推理性能更优。<br>
+                        <strong>2. 训练与推理优化</strong><br>  
+                        - <strong>HAI-LLM框架</strong>：支持ZeRO数据并行、流水线并行等四种并行训练方式，搭配高性能算子haiscale，优化显存与计算效率。<br>  
+                        - <strong>DualPipe算法</strong>：通过通信计算重叠优化，消除流水线并行气泡，跨节点all-all通信开销近乎为零。<br>  
+                        - <strong>FP8混合精度训练</strong>：核心计算采用FP8量化，关键模块保留BF16/FP32精度，平衡效率与稳定性，首次在大规模模型中验证有效性。<br>  
+                        - <strong>MTP训练目标</strong>：多Token预测提升模型在代码、数学等任务上的性能，同时加速推理。</p>
+                    <p><strong>三、技术优势与行业意义</strong><br>
+                        DeepSeek通过MoE架构、MLA机制及混合精度训练，将训推成本大幅降低，打破"大模型必高成本"的行业认知。其技术突破证明大模型领域并非"魔法"，而是基本功与架构创新的结合。作者认为，DeepSeek的出现不仅展现了中国团队在基础模型领域的竞争力，更将推动AI行业向低成本、高效率迭代发展，缩小与海外的技术代际差距。未来，Transformer架构适配芯片、MoE与多Token预测等方向或成研究热点。</p>
+                        <div class="article-source">
+                            <p><strong>转载声明</strong><br>
+                                内容来源：本文内容是对阅读微信公众号文章的提炼，原文链接详见下方。<br>  
+                                版权说明：原文版权归原作者及发布平台所有。如需转载全文请联系原作者获取授权。<br>  
+                                转载用途：仅用于个人主页学习交流，不涉及商业用途。如有侵权，请联系删除。<br>  
+                                原文链接：<a href="https://mp.weixin.qq.com/s/W4LzpMb3cIn0zVlW2oVung" target="_blank">https://mp.weixin.qq.com/s/W4LzpMb3cIn0zVlW2oVung</a></p>
+                        </div>
+                    <div class="article-tags">
+                        <span class="article-tag">ChatGPT</span>
+                        <span class="article-tag">NLP</span>
+                        <span class="article-tag">AI</span>
+                    </div>
+                </div>
+                
+                <div id="article3" class="article">
+                    <h3>AI革命的真正战场：超越聊天框的原生软件重构</h3>
+                    <p><strong>一、当前AI应用的致命缺陷：旧瓶装新酒</strong><br>
+                    Gmail整合Gemini模型的邮件生成功能堪称反面教材：用户需输入与草稿等长的提示词，却得到语气生硬、缺乏个性的模板化内容。这种“AI无马车”式设计，如同给传统软件套上AI外壳，本质仍是用旧思维约束新技术。Pete Koomen指出，问题根源在于系统提示词被开发者固化为“通用商务语气”，用户无法根据个人风格定制，导致AI输出与真实需求脱节。  </p>
+                    <p><strong>二、AI原生软件的核心逻辑：让用户定义思考方式</strong><br>
+                    理想的AI体验应赋予用户“教机器思考”的能力。以自定义系统提示词为例，当用户将提示词改为“你是43岁的YC合伙人Pete，邮件需简明扼要”，AI生成的内容立刻贴合真实沟通习惯。这种模式打破了开发者与用户的传统分工——用户不再仅是功能使用者，而是通过自然语言编程，将个人工作流程编码为AI指令，实现“用思维控制工具”的范式升级。   </p>
+                    <p><strong>三、编程工具的先行示范：从代码生成到流程自动化</strong><br>
+                   Cursor等编程工具的成功揭示了AI原生设计的关键：允许用户通过自然语言直接操作底层功能。开发者能用英语描述需求并生成代码，本质是因为工具开放了“自然语言→执行指令”的直连通道。这种模式正延伸至其他领域：如邮件Agent可根据用户设定的规则（“妻子邮件标私人，创业者邮件优先处理”）自动执行分类、回复等操作，将重复事务转化为AI可理解的逻辑流程。    </p>
+                    <p><strong>四、未来趋势：从文本生成到现实任务自动化</strong><br>
+                    AI的真正革命在于摆脱“聊天框交互”的局限，成为能调用多工具的自动化助手。例如，一个整合日历、Slack、法务文档的Agent，可自动处理“审核条款→通知团队→归档文件”的全流程。Pete强调，创业者应抛弃“给现有产品加AI插件”的思路，转而思考“如何让AI承担所有重复性工作，释放用户创造力”。当AI能理解并执行个性化工作流时，才是其价值的真正兑现。 </p><br>
+                   <p><strong>核心观点</strong>：当前AI应用的瓶颈在于对传统软件模式的路径依赖，真正的突破需构建以“用户自定义思考逻辑”为核心的原生系统。这要求开发者从“功能设计者”转变为“AI交互架构师”，让技术成为延伸人类思维的工具，而非替代人类表达的聊天机器人。</p>
+                        <div class="article-source">
+                            <p><strong>转载声明</strong><br>
+                                内容来源：本文内容是对阅读微信公众号文章的提炼，原文链接详见下方。<br>  
+                                版权说明：原文版权归原作者及发布平台所有。如需转载全文请联系原作者获取授权。<br>  
+                                转载用途：仅用于个人主页学习交流，不涉及商业用途。如有侵权，请联系删除。<br>  
+                                原文链接：<a href="https://mp.weixin.qq.com/s/MHrrKT-VNGJKLi6l-K2QPw" target="_blank">
+https://mp.weixin.qq.com/s/MHrrKT-VNGJKLi6l-K2QPw</a></p>
+                        </div>
+                    <div class="article-tags">
+                        <span class="article-tag">教机器思考</span>
+                        <span class="article-tag">Agent</span>
+                        <span class="article-tag">AI</span>
+                    </div>
+                </div>
 
-function switchMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
-  document.getElementById('mode-preset').classList.toggle('hidden', mode !== 'preset');
-  document.getElementById('mode-design').classList.toggle('hidden', mode !== 'design');
-  document.getElementById('mode-clone').classList.toggle('hidden', mode !== 'clone');
-}
+                
+                <div id="article4" class="article">
+                    <h3>深度探索AI大模型原理，它到底是如何工作的</h3>
+                    <p><strong>一、文本生成的本质：迭代预测与对话模拟</strong><br>
+                    AI大模型的核心能力源于“文本生成”——基于历史输入数据预测下一个最可能出现的token（字/词）。以GPT2为例，输入“[CLS]今天天气真”，模型会依次生成“的”“很”“好”等字，通过迭代累加形成完整文本。<br>  
+ChatGPT的对话功能本质是特殊文本生成：利用<SEP>分隔符标记对话轮次，如“[CLS]今天天气真好<SEP>是的，你最近怎么样”，通过分割<SEP>前后内容模拟双人对话。模型不理解对话意义，仅通过数据模式生成符合对话结构的文本。  </p>
+                    <p><strong>二、Llama3模型的推理核心：Transformer架构与概率计算</strong><br>
+                    Llama3基于Transformer解码器架构，推理流程可拆解为：  <br>
+<strong>输入处理</strong>：通过Embedding层将文本转为向量，结合位置编码（如Rotary Positional Encoding）标记序列顺序。  <br>
+<strong>特征提取</strong>：经多层自注意力机制（如Grouped Multi-Query Attention）和前馈神经网络（SwiGLU激活函数）处理，生成固定维度特征向量。  <br>
+<strong>概率预测</strong>：通过Linear层将特征向量维度映射为词表大小（如1000维），再经Softmax层计算每个字的出现概率。  <br>
+<strong>结果选择</strong>：贪心策略选概率最高的字（输出固定），或基于概率分布随机采样（输出多样），后者实现ChatGPT的回复多样性。   </p>
+                    <p><strong>三、GPT2本地实验：从模型部署到对话生成</strong><br>
+                   在本地部署GPT2模型（如中文CLUE Corpus Small版本）需下载config.json、pytorch_model.bin、vocab.txt文件，通过Hugging Face的Transformers库实现：  <br>
+<strong>普通文本生成</strong>：输入“[CLS]今天天气真”，模型按概率生成“的很好，我们一行人去吃的…”。  
+<strong>对话生成</strong>：加载对话微调模型后，输出包含<SEP>分隔符，如“好<SEP>是的，你最近怎么样<SEP>挺好的”，通过分割<SEP>实现对话展示。   </p>
+                    <p><strong>核心观点</strong>：AI大模型的“智能”源于海量数据训练下的序列预测，而非真正理解语义。其工作本质是通过Transformer架构将文本转为向量计算概率，再通过特殊标记模拟对话结构。掌握这一原理，即可理解大模型的生成逻辑与技术边界。</p>
+                        <div class="article-source">
+                            <p><strong>转载声明</strong><br>
+                                内容来源：本文内容是对阅读微信公众号文章的提炼，原文链接详见下方。<br>  
+                                版权说明：原文版权归原作者及发布平台所有。如需转载全文请联系原作者获取授权。<br>  
+                                转载用途：仅用于个人主页学习交流，不涉及商业用途。如有侵权，请联系删除。<br>  
+                                原文链接：<a href="https://mp.weixin.qq.com/s/MHrrKT-VNGJKLi6l-K2QPw" target="_blank">
+https://mp.weixin.qq.com/s/MHrrKT-VNGJKLi6l-K2QPw</a></p>
+                        </div>
+                    <div class="article-tags">
+                        <span class="article-tag">文本生成</span>
+                        <span class="article-tag">概率</span>
+                        <span class="article-tag">AI</span>
+                    </div>
+                </div>
 
-function setStatus(msg, isError = false) {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = 'status' + (isError ? ' error' : msg ? ' success' : '');
-}
+                
+                <div id="article5" class="article">
+                     <h3>人工智能神经网络基本原理</h3>
+                    <p><strong>一、生物启发与早期模型：从神经元到 MP 模型</strong><br>
+                    生物学神经元通过树突接收信号、轴突传递信号，突触间隙实现神经元间通信。受此启发，MP 神经元模型构建了多输入单输出的线性分类框架，通过权重（w）模拟刺激敏感度、阈值（θ）控制激活难度，采用符号函数实现二分类。但其局限在于权重需人工设定，无法自主学习特征，仅能处理线性可分问题，如天气与带伞的简单分类场景。</p>
+                    <p><strong>二、单层神经网络：感知器的线性分类突破</strong><br>
+                    1958 年提出的感知器首次实现权重自动调整，通过有监督学习和误差修正算法优化参数。其数学模型基于矩阵运算，输入层传输数据，输出层执行线性分类（类似逻辑回归），成功解决 AND 门等线性分类任务。但 Minsky 指出其无法处理 XOR 等非线性问题，核心瓶颈在于单层计算的线性本质。</p>
+                    <p><strong>三、两层神经网络：非线性世界的钥匙</strong><br>
+                   通过引入隐藏层和非线性激活函数（如 sigmoid），两层神经网络突破线性限制。隐藏层通过矩阵变换实现输入空间的非线性映射，使数据从线性不可分转为可分，配合 BP 反向传播算法解决梯度计算难题。万能逼近定理证明，足够神经元的两层网络可逼近任意连续函数。ReLU 激活函数的应用进一步缓解梯度消失，成为多层网络的标配选择，如 EasyPR 字符识别模型通过 120-40-65 结构实现高效分类。 </p>
+                    <p><strong>四、多层神经网络与深度学习：从特征提取到复杂函数拟合</strong><br>
+                   2006 年 Hinton 提出的深度学习通过预训练和微调技术，解决多层网络训练难题。深层网络通过逐层抽象特征（如边缘→形状→图案→目标），结合更多参数增强函数模拟能力，在人脸识别等复杂任务中表现优异。训练过程依赖梯度下降与 BP 算法优化损失函数，同时通过 Dropout、数据增强等正则化技术缓解过拟合。参数设计上，同等参数量下更深的网络结构往往优于浅层网络，体现层次化特征提取的优势。</p><br>
+                   <p><strong>核心观点</strong>：神经网络的进化史是从线性到非线性、从人工调参到自动学习、从浅层到深层的递进过程。每一次突破（如 MP 模型的数学建模、BP 算法的计算优化、深度学习的层次特征提取）均源于对生物机制的模拟与数学工具的创新，其本质是通过多层非线性变换逼近复杂函数，实现从数据到知识的映射。</p>
+                        <div class="article-source">
+                            <p><strong>转载声明</strong><br>
+                                内容来源：本文内容是对阅读微信公众号文章的提炼，原文链接详见下方。<br>  
+                                版权说明：原文版权归原作者及发布平台所有。如需转载全文请联系原作者获取授权。<br>  
+                                转载用途：仅用于个人主页学习交流，不涉及商业用途。如有侵权，请联系删除。<br>  
+                                原文链接：<a href="https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw" target="_blank">
+https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
+                        </div>
+                    <div class="article-tags">
+                        <span class="article-tag">神经网络</span>
+                        <span class="article-tag">深度学习</span>
+                        <span class="article-tag">AI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-function getMime(filename) {
-  if (filename.endsWith('.wav')) return 'audio/wav';
-  return 'audio/mpeg';
-}
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery page">
+        <div id="particles-js-gallery" class="particles-js"></div>
+        <h2>看的</h2>
+        <div class="gallery-flex-container">
+            <div class="gallery-intro">
+                <h3>我的随手摄影集</h3>
+                <p>这里收录了我近年来拍摄的一些照片，记录了生活中的美好瞬间。从自然风光到城市街景，从人文纪实到静物特写，每一张照片都承载着独特的故事和情感。</p>
+                <p>摄影对我来说并不是艺术形式，而是一种生活记录的方式。通过镜头，我试图捕捉那些稍纵即逝的美好时刻，分享我眼中的世界。</p>
+                <div class="tags">
+                    <span class="tag">风光</span>
+                    <span class="tag">人文</span>
+                    <span class="tag">街拍</span>
+                    <span class="tag">纪实</span>
+                    <span class="tag">美食</span>
+                </div>
+            </div>
+            <div class="gallery-container">
+                <div class="gallery-wrapper">
+                    <!-- 原有的图片内容 -->
+                </div>
+                <div class="gallery-nav">
+                    <button class="prev-btn">&lt;</button>
+                    <button class="next-btn">&gt;</button>
+                </div>
+                <div class="gallery-pagination"></div>
+            </div>
+        </div>
+    </section>
 
-async function generate() {
-  const apiKey = document.getElementById('apiKey').value.trim();
-  if (!apiKey) { setStatus('请先输入 API Key', true); return; }
+    <!-- Contact Section -->
+    <section id="contact" class="contact page">
+        <h2>找到我</h2>
+        <div class="social-links">
+            <a href="https://v.douyin.com/2KSwjyGnbiQ/" class="social-icon" id="douyin-icon" target="_blank">
+                <img src="images/social-icons/douyin.svg" alt="抖音" class="social-img">
+            </a>
+            <a href="https://www.xiaohongshu.com/user/profile/63be202d00000000270283f6" class="social-icon" id="xiaohongshu-icon" target="_blank">
+                <img src="images/social-icons/xiaohongshu.svg" alt="小红书" class="social-img">
+            </a>
+            <a href="javascript:void(0);" class="social-icon" id="wechat-icon">
+                <img src="images/social-icons/wechat.svg" alt="微信" class="social-img">
+                <div class="wechat-qrcode">
+                    <img src="images/qrcode/wechat-qrcode.jpg" alt="微信二维码">
+                </div>
+            </a>
+        </div>
+    </section>
 
-  const text = document.getElementById('text').value.trim();
-  if (!text) { setStatus('请输入要合成的文字', true); return; }
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 彭安琦. All rights reserved.</p>
+    </footer>
 
-  const context = document.getElementById('context').value.trim();
+    <button class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-  let model, audioConfig, messages;
-
-  if (currentMode === 'preset') {
-    model = 'mimo-v2.5-tts';
-    const voice = document.getElementById('voice').value;
-    audioConfig = { format: 'wav', voice };
-    messages = [];
-    if (context) messages.push({ role: 'user', content: context });
-    messages.push({ role: 'assistant', content: text });
-  }
-  else if (currentMode === 'design') {
-    const desc = document.getElementById('voiceDesc').value.trim();
-    if (!desc) { setStatus('请输入音色描述', true); return; }
-    model = 'mimo-v2.5-tts-voicedesign';
-    audioConfig = { format: 'wav' };
-    messages = [
-      { role: 'user', content: desc },
-      { role: 'assistant', content: text }
-    ];
-  }
-  else if (currentMode === 'clone') {
-    if (!voiceBase64) { setStatus('请上传参考音频文件', true); return; }
-    model = 'mimo-v2.5-tts-voiceclone';
-    const fileName = document.getElementById('voiceFile').files[0].name;
-    const mime = getMime(fileName);
-    audioConfig = { format: 'wav', voice: `data:${mime};base64,${voiceBase64}` };
-    messages = [];
-    if (context) messages.push({ role: 'user', content: context });
-    else messages.push({ role: 'user', content: '' });
-    messages.push({ role: 'assistant', content: text });
-  }
-
-  const btn = document.getElementById('btnGenerate');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>生成中...';
-  setStatus('正在调用 MiMo TTS API...');
-  document.getElementById('audioResult').classList.add('hidden');
-
-  try {
-    const resp = await fetch(API_BASE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': apiKey,
-      },
-      body: JSON.stringify({ model, messages, audio: audioConfig }),
-    });
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error(`HTTP ${resp.status}: ${errText}`);
-    }
-
-    const data = await resp.json();
-    const audioData = data.choices?.[0]?.message?.audio?.data;
-    if (!audioData) throw new Error('API 未返回音频数据');
-
-    const bytes = Uint8Array.from(atob(audioData), c => c.charCodeAt(0));
-    const blob = new Blob([bytes], { type: 'audio/wav' });
-    const url = URL.createObjectURL(blob);
-
-    const player = document.getElementById('audioPlayer');
-    player.src = url;
-    document.getElementById('downloadLink').href = url;
-    document.getElementById('audioResult').classList.remove('hidden');
-    setStatus('生成成功！');
-  } catch (err) {
-    setStatus(err.message, true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '生成语音';
-  }
-}
-</script>
+    <!-- 主脚本 -->
+    <script src="js/main.js"></script>
 </body>
-</html>
+</html> 
