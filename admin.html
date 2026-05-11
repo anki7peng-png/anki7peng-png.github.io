@@ -491,6 +491,18 @@
             </div>
 
             <div class="setting-card">
+                <h4>TTS API Key</h4>
+                <p>设置 MiMo TTS 工具使用的 API Key。留空则使用内置默认 Key。</p>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="tts-api-key-admin" placeholder="留空则使用内置默认 Key"
+                        style="flex:1;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:14px;outline:none;font-family:monospace;">
+                    <button class="btn btn-secondary btn-sm" onclick="saveTtsKey()">保存</button>
+                    <button class="btn btn-danger btn-sm" onclick="resetTtsKey()">重置</button>
+                </div>
+                <p id="tts-key-hint" style="font-size:12px;color:var(--text-secondary);margin-top:8px;"></p>
+            </div>
+
+            <div class="setting-card">
                 <h4>导出数据</h4>
                 <p>将所有文章和图片数据导出为 JSON 文件，可用于备份或迁移</p>
                 <div class="setting-actions">
@@ -651,6 +663,7 @@
             document.getElementById('admin-page').classList.add('active');
             renderArticles();
             renderGallery();
+            loadTtsKey();
         } else {
             document.getElementById('login-error').style.display = 'block';
             document.getElementById('admin-password').value = '';
@@ -827,6 +840,34 @@
         saveData(data);
         document.getElementById('new-password').value = '';
         showToast('密码已修改', 'success');
+    }
+
+    // TTS API Key 管理
+    function loadTtsKey() {
+        const saved = localStorage.getItem('anki_tts_api_key');
+        const hint = document.getElementById('tts-key-hint');
+        const input = document.getElementById('tts-api-key-admin');
+        if (saved) {
+            input.value = saved;
+            hint.textContent = '当前使用：自定义 Key（' + saved.slice(0, 8) + '...）';
+        } else {
+            hint.textContent = '当前使用：内置默认 Key';
+        }
+    }
+
+    function saveTtsKey() {
+        const key = document.getElementById('tts-api-key-admin').value.trim();
+        if (!key) { showToast('请输入 API Key', 'error'); return; }
+        localStorage.setItem('anki_tts_api_key', key);
+        loadTtsKey();
+        showToast('TTS API Key 已保存', 'success');
+    }
+
+    function resetTtsKey() {
+        localStorage.removeItem('anki_tts_api_key');
+        document.getElementById('tts-api-key-admin').value = '';
+        loadTtsKey();
+        showToast('已重置为内置默认 Key', 'info');
     }
 
     function exportData() {

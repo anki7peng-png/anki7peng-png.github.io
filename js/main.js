@@ -817,40 +817,15 @@ function initializeArticles() {
 // ============ TTS 工具 ============
 const TTS_API_BASE = 'https://token-plan-cn.xiaomimimo.com/v1';
 const TTS_API_URL = TTS_API_BASE + '/chat/completions';
+const DEFAULT_TTS_KEY = 'tp-c9t8mf6b2ejcorj83dokpcwnbkjp3wmt0w5qdl4o44hlnabi';
 
-// API Key 管理
+// API Key 管理：优先用后台设置的 key，否则用内置默认 key
 function getApiKey() {
-    return localStorage.getItem('tts_api_key') || '';
-}
-
-function setApiKey(key) {
-    localStorage.setItem('tts_api_key', key);
+    return localStorage.getItem('anki_tts_api_key') || DEFAULT_TTS_KEY;
 }
 
 // 初始化 TTS 工具
 function initTTS() {
-    // 显示已保存的 key 状态
-    const savedKey = getApiKey();
-    const statusEl = document.getElementById('tts-key-status');
-    if (savedKey) {
-        statusEl.textContent = 'API Key 已保存';
-        statusEl.className = 'tts-status success';
-        document.getElementById('tts-api-key').value = savedKey;
-    }
-
-    // 保存按钮
-    document.getElementById('tts-save-key').addEventListener('click', () => {
-        const key = document.getElementById('tts-api-key').value.trim();
-        if (key) {
-            setApiKey(key);
-            statusEl.textContent = 'API Key 已保存';
-            statusEl.className = 'tts-status success';
-        } else {
-            statusEl.textContent = '请输入有效的 API Key';
-            statusEl.className = 'tts-status error';
-        }
-    });
-
     // Tab 切换
     document.querySelectorAll('.tts-tab').forEach(tab => {
         tab.addEventListener('click', () => {
