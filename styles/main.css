@@ -1289,32 +1289,13 @@ footer {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 100px 5% 0;
+    padding: 72px 5% 0;
     background: linear-gradient(
         to bottom,
         var(--bg-primary) 0%,
-        var(--bg-primary) 80%,
+        var(--bg-primary) 85%,
         transparent 100%
     );
-}
-
-.vibecoding-sticky h2 {
-    text-align: center;
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.section-subtitle {
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 18px;
-    margin-bottom: 20px;
 }
 
 /* 工具导航菜单 */
@@ -1358,7 +1339,7 @@ footer {
 }
 
 .tools-container {
-    padding: 24px 5% 80px;
+    padding: 16px 5% 80px;
     max-width: 960px;
     margin: 0 auto;
 }
@@ -1766,16 +1747,7 @@ footer {
 /* Vibe Coding 响应式 */
 @media (max-width: 768px) {
     .vibecoding-sticky {
-        padding: 80px 16px 0;
-    }
-
-    .vibecoding-sticky h2 {
-        font-size: 32px;
-    }
-
-    .section-subtitle {
-        font-size: 15px;
-        margin-bottom: 16px;
+        padding: 56px 16px 0;
     }
 
     .tools-nav {
