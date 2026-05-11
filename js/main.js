@@ -924,8 +924,8 @@ async function generateTTS(mode) {
             body = {
                 model: 'mimo-v2.5-tts',
                 messages: [
-                    { role: 'user', content: text },
-                    { role: 'assistant', content: voice }
+                    { role: 'user', content: voice },
+                    { role: 'assistant', content: text }
                 ],
                 audio: { format: 'wav' }
             };
@@ -938,8 +938,8 @@ async function generateTTS(mode) {
             body = {
                 model: 'mimo-v2.5-tts-voicedesign',
                 messages: [
-                    { role: 'user', content: text },
-                    { role: 'assistant', content: desc }
+                    { role: 'user', content: desc },
+                    { role: 'assistant', content: text }
                 ],
                 audio: { format: 'wav' }
             };
@@ -960,10 +960,11 @@ async function generateTTS(mode) {
             body = {
                 model: 'mimo-v2.5-tts-voiceclone',
                 messages: [
-                    { role: 'user', content: text },
+                    { role: 'user', content: '[voice_clone]' },
+                    { role: 'assistant', content: text },
                     {
-                        role: 'assistant',
-                        content: '[voice_clone]',
+                        role: 'user',
+                        content: '',
                         extra: {
                             voice_clone: {
                                 type: 'audio',
