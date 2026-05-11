@@ -19,7 +19,7 @@
     
     <!-- 导航栏 -->
     <nav class="nav-container">
-        <div class="logo">ANQI</div>
+        <div class="logo">Anki</div>
         <div class="nav-slider"></div>
         <ul class="nav-links">
             <li><a href="#" data-page="home" class="active">首页</a></li>
@@ -34,7 +34,7 @@
     <!-- Hero Section -->
     <section id="home" class="hero page active">
         <div class="hero-content">
-            <h1 class="glitch-text">P · ANQI</h1>
+            <h1 class="glitch-text">Anki · P</h1>
             <div class="typing-text">最会健身的AI训练师</div>
             <p class="hero-description">AI正在颠覆未来，拥抱AI，一起创造未来！</p>
         </div>
@@ -60,7 +60,6 @@
                 </div>
             </div>
             <div class="about-content">
-                <h2>关于我</h2>
                 <p>坚持每天精进，在学习中寻找乐趣，以踏实态度专研问题，用积极心态感染周围！</p>
             </div>
         </div>
@@ -68,7 +67,6 @@
 
     <!-- Projects Section -->
     <section id="projects" class="projects page">
-        <h2>读的</h2>
         <div class="reading-container">
             <!-- 左侧文章标题列表 -->
             <div class="article-list">
@@ -257,7 +255,6 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
     <!-- Gallery Section -->
     <section id="gallery" class="gallery page">
         <div id="particles-js-gallery" class="particles-js"></div>
-        <h2>看的</h2>
         <div class="gallery-flex-container">
             <div class="gallery-intro">
                 <h3>我的随手摄影集</h3>
@@ -286,11 +283,22 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
 
     <!-- Vibe Coding Section -->
     <section id="vibecoding" class="vibecoding page">
-        <h2>Vibe Coding</h2>
-        <p class="section-subtitle">用 AI 创造，让想法发声</p>
+        <div class="vibecoding-sticky">
+            <h2>Vibe Coding</h2>
+            <p class="section-subtitle">用 AI 创造，让想法发声</p>
+            <nav class="tools-nav">
+                <a href="#tool-tts" class="tool-nav-item active" data-tool="tts">
+                    <i class="fas fa-volume-up"></i> TTS 语音合成
+                </a>
+                <a href="#" class="tool-nav-item coming-soon-item" onclick="return false;">
+                    <i class="fas fa-plus"></i> 更多工具
+                </a>
+            </nav>
+        </div>
 
-        <div class="tools-grid">
-            <!-- TTS 工具卡片 -->
+        <div class="tools-container">
+            <!-- TTS 工具 -->
+            <div class="tool-section" id="tool-tts">
             <div class="tool-card">
                 <div class="tool-header">
                     <div class="tool-icon">
@@ -400,24 +408,12 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
                 </div>
             </div>
 
-            <!-- 更多工具占位 -->
-            <div class="tool-card coming-soon">
-                <div class="tool-header">
-                    <div class="tool-icon">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="tool-info">
-                        <h3>更多工具</h3>
-                        <p>即将上线...</p>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 
     <!-- Contact Section -->
     <section id="contact" class="contact page">
-        <h2>找到我</h2>
         <div class="social-links">
             <a href="https://v.douyin.com/2KSwjyGnbiQ/" class="social-icon" id="douyin-icon" target="_blank">
                 <img src="images/social-icons/douyin.svg" alt="抖音" class="social-img">

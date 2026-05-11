@@ -793,13 +793,11 @@ function initializeArticles() {
             
             if (activeArticle) {
                 activeArticle.classList.add('active');
-                
-                // 平滑滚动到文章顶部（在移动设备上）
-                if (window.innerWidth <= 768) {
-                    const articleContent = document.querySelector('.article-content');
-                    if (articleContent) {
-                        articleContent.scrollTop = 0;
-                    }
+
+                // 每次切换文章都滚动到顶部
+                const articleContent = document.querySelector('.article-content');
+                if (articleContent) {
+                    articleContent.scrollTop = 0;
                 }
             } else {
                 console.error(`未找到ID为 ${articleId} 的文章内容`);
@@ -1058,4 +1056,20 @@ function downloadAudio() {
 }
 
 // 页面加载时初始化 TTS
-document.addEventListener('DOMContentLoaded', initTTS); 
+document.addEventListener('DOMContentLoaded', initTTS);
+
+// 工具导航滚动
+document.querySelectorAll('.tool-nav-item[data-tool]').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.getElementById('tool-' + item.dataset.tool);
+        if (target) {
+            const sticky = document.querySelector('.vibecoding-sticky');
+            const offset = sticky ? sticky.offsetHeight : 0;
+            const top = target.getBoundingClientRect().top + window.pageYOffset - offset - 16;
+            window.scrollTo({ top, behavior: 'smooth' });
+        }
+        document.querySelectorAll('.tool-nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+    });
+}); 

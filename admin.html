@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - Anki's Website</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #000;
+            --bg-secondary: #1d1d1f;
+            --bg-tertiary: #2d2d2f;
+            --text-primary: #f5f5f7;
+            --text-secondary: #86868b;
+            --accent: #2997ff;
+            --accent-hover: #0077ed;
+            --danger: #ff453a;
+            --success: #30d158;
+            --border: rgba(255,255,255,0.1);
+            --surface: rgba(255,255,255,0.06);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* 登录页面 */
+        .login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-box h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .login-box p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+        .login-box input:focus { border-color: var(--accent); }
+        .login-box .error-msg {
+            color: var(--danger);
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            width: 100%;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+        .btn-danger {
+            background: rgba(255,69,58,0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255,69,58,0.3);
+        }
+        .btn-danger:hover { background: rgba(255,69,58,0.25); }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        /* 后台主界面 */
+        .admin-page { display: none; }
+        .admin-page.active { display: block; }
+
+        .admin-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .admin-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .admin-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Tab 导航 */
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 20px 32px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .admin-tab:hover { color: var(--text-primary); }
+        .admin-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* Tab 内容 */
+        .tab-panel {
+            display: none;
+            padding: 24px 32px;
+            max-width: 1000px;
+        }
+        .tab-panel.active { display: block; }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .panel-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* 文章列表 */
+        .article-list-admin {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .article-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: border-color 0.2s;
+        }
+        .article-item:hover { border-color: rgba(255,255,255,0.2); }
+        .article-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .article-item-title {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .article-item-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .article-item-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        /* 编辑器 */
+        .editor-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 60px 20px;
+            overflow-y: auto;
+        }
+        .editor-overlay.active { display: flex; }
+        .editor-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 700px;
+        }
+        .editor-box h3 {
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus { border-color: var(--accent); }
+        .form-group textarea {
+            min-height: 300px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+        .form-group .hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+        .editor-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* 图片管理 */
+        .gallery-grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .gallery-item-admin {
+            position: relative;
+            aspect-ratio: 4/3;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+        .gallery-item-admin img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .gallery-item-admin .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            color: var(--danger);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .gallery-item-admin:hover .delete-btn { opacity: 1; }
+
+        .upload-card {
+            aspect-ratio: 4/3;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            position: relative;
+        }
+        .upload-card:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .upload-card i { font-size: 28px; }
+        .upload-card span { font-size: 13px; }
+        .upload-card input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* 设置 */
+        .setting-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .setting-card h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .setting-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .setting-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast.success { background: var(--success); color: #000; }
+        .toast.error { background: var(--danger); color: #fff; }
+        .toast.info { background: var(--accent); color: #fff; }
+
+        @media (max-width: 768px) {
+            .admin-header { padding: 12px 16px; }
+            .admin-tabs { padding: 16px 16px 0; }
+            .tab-panel { padding: 20px 16px; }
+            .editor-overlay { padding: 20px 12px; }
+            .editor-box { padding: 20px; }
+            .gallery-grid-admin {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-page" id="login-page">
+        <div class="login-box">
+            <h1>后台管理</h1>
+            <p>请输入管理密码</p>
+            <div class="error-msg" id="login-error">密码错误，请重试</div>
+            <input type="password" id="admin-password" placeholder="输入密码" onkeydown="if(event.key==='Enter') attemptLogin()">
+            <button class="btn btn-primary" onclick="attemptLogin()">
+                <i class="fas fa-sign-in-alt"></i> 登录
+            </button>
+        </div>
+    </div>
+
+    <!-- 后台主界面 -->
+    <div class="admin-page" id="admin-page">
+        <header class="admin-header">
+            <h1><i class="fas fa-cog"></i> 后台管理</h1>
+            <div class="admin-header-right">
+                <a href="index.html" class="btn btn-secondary btn-sm" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> 查看网站
+                </a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </button>
+            </div>
+        </header>
+
+        <nav class="admin-tabs">
+            <button class="admin-tab active" data-tab="articles">
+                <i class="fas fa-newspaper"></i> 文章管理
+            </button>
+            <button class="admin-tab" data-tab="gallery">
+                <i class="fas fa-images"></i> 图片管理
+            </button>
+            <button class="admin-tab" data-tab="settings">
+                <i class="fas fa-sliders-h"></i> 设置
+            </button>
+        </nav>
+
+        <!-- 文章管理 -->
+        <div class="tab-panel active" id="panel-articles">
+            <div class="panel-header">
+                <h2>文章管理</h2>
+                <button class="btn btn-primary btn-sm" onclick="openEditor()">
+                    <i class="fas fa-plus"></i> 新增文章
+                </button>
+            </div>
+            <div class="article-list-admin" id="article-list"></div>
+        </div>
+
+        <!-- 图片管理 -->
+        <div class="tab-panel" id="panel-gallery">
+            <div class="panel-header">
+                <h2>图片管理</h2>
+            </div>
+            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:20px;">
+                图片上传后自动保存到本地存储。建议图片宽度不超过 1600px。
+            </p>
+            <div class="gallery-grid-admin" id="gallery-grid"></div>
+        </div>
+
+        <!-- 设置 -->
+        <div class="tab-panel" id="panel-settings">
+            <div class="panel-header">
+                <h2>设置</h2>
+            </div>
+
+            <div class="setting-card">
+                <h4>修改密码</h4>
+                <p>更改后台管理登录密码</p>
+                <div style="display:flex;gap:8px;">
+                    <input type="password" id="new-password" placeholder="新密码"
+                        style="flex:1;padding:10px 14px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:14px;outline:none;">
+                    <button class="btn btn-secondary btn-sm" onclick="changePassword()">确认修改</button>
+                </div>
+            </div>
+
+            <div class="setting-card">
+                <h4>导出数据</h4>
+                <p>将所有文章和图片数据导出为 JSON 文件，可用于备份或迁移</p>
+                <div class="setting-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportData()">
+                        <i class="fas fa-download"></i> 导出 JSON
+                    </button>
+                </div>
+            </div>
+
+            <div class="setting-card">
+                <h4>导入数据</h4>
+                <p>从 JSON 文件恢复文章和图片数据（将覆盖当前数据）</p>
+                <div class="setting-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()">
+                        <i class="fas fa-upload"></i> 导入 JSON
+                    </button>
+                    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+                </div>
+            </div>
+
+            <div class="setting-card">
+                <h4>生成静态页面</h4>
+                <p>将当前数据生成完整的 index.html 文件并下载（用于部署到 GitHub Pages）</p>
+                <div class="setting-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="generateHTML()">
+                        <i class="fas fa-file-code"></i> 下载 index.html
+                    </button>
+                </div>
+            </div>
+
+            <div class="setting-card">
+                <h4>清除所有数据</h4>
+                <p>删除所有本地存储的文章和图片数据，恢复为默认状态</p>
+                <div class="setting-actions">
+                    <button class="btn btn-danger btn-sm" onclick="clearAllData()">
+                        <i class="fas fa-trash"></i> 清除数据
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文章编辑器 -->
+    <div class="editor-overlay" id="editor-overlay">
+        <div class="editor-box">
+            <h3 id="editor-title">新增文章</h3>
+            <input type="hidden" id="edit-article-id">
+            <div class="form-group">
+                <label>文章标题</label>
+                <input type="text" id="edit-title" placeholder="输入文章标题">
+            </div>
+            <div class="form-group">
+                <label>标签 <span class="hint">（用英文逗号分隔）</span></label>
+                <input type="text" id="edit-tags" placeholder="例如：DeepSeek, AI, NLP">
+            </div>
+            <div class="form-group">
+                <label>文章内容 <span class="hint">（支持 HTML 格式，使用 &lt;p&gt;、&lt;strong&gt;、&lt;br&gt; 等标签）</span></label>
+                <textarea id="edit-body" placeholder="输入文章内容，支持 HTML 标签"></textarea>
+            </div>
+            <div class="form-group">
+                <label>原文链接 <span class="hint">（可选）</span></label>
+                <input type="text" id="edit-source" placeholder="https://...">
+            </div>
+            <div class="editor-actions">
+                <button class="btn btn-secondary" onclick="closeEditor()">取消</button>
+                <button class="btn btn-primary" onclick="saveArticle()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ============ 数据管理 ============
+    const STORAGE_KEY = 'anki_admin_data';
+    const DEFAULT_PASSWORD = 'anki2025';
+
+    function getData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+        return { password: DEFAULT_PASSWORD, articles: getDefaultArticles(), gallery: getDefaultGallery() };
+    }
+
+    function saveData(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getDefaultArticles() {
+        return [
+            {
+                id: 'article1',
+                title: '本地部署 DeepSeek + 搭建私人知识库：我的实战经验分享',
+                tags: ['DeepSeek', 'Ollama', 'Cherry Studio'],
+                source: 'https://www.bilibili.com/video/BV1pFjxzTEd5/',
+                body: `<p><strong>一、先搞定 Ollama：让大模型跑在本地电脑上</strong><br><strong>1. 下载 Ollama：傻瓜式安装，默认路径最省心</strong><br>新手建议直接去 Ollama 官网，根据系统下载对应的安装包。安装时一路默认就行。</p>
+<p><strong>2. 下载 DeepSeek 模型：先从 1.5B 版本试水</strong><br>新手千万别一上来就冲高版本！DeepSeek-1.5B版本最友好，运行流畅不卡顿。命令：{ollama run deepseek-r1:1.5b}</p>
+<p><strong>3. 启动模型：试试和 AI 对话</strong><br>在终端窗口和deepseek直接对话，试试发一句"你好"就能看到回复了。</p>
+<p><strong>二、CherryStudio 登场：美化聊天窗口</strong><br>去 CherryStudio 官网下载客户端，安装后绑定本地模型，就能有漂亮的聊天界面。</p>
+<p><strong>三、新手必看的避坑指南</strong><br>命令别手动输入！直接复制粘贴。低配电脑优先选小版本。</p>`
+            },
+            {
+                id: 'article2',
+                title: '漫谈DeepSeek及其核心技术：低成本高效大模型的破局之路',
+                tags: ['ChatGPT', 'NLP', 'AI'],
+                source: 'https://mp.weixin.qq.com/s/W4LzpMb3cIn0zVlW2oVung',
+                body: `<p><strong>一、公司与模型概况</strong><br>DeepSeek于2023年7月成立，V3模型参数量达671B，训练成本不到600万美元。</p>
+<p><strong>二、核心技术</strong><br>DeepSeekMoE架构、MLA多头潜在注意力、FP8混合精度训练。</p>
+<p><strong>三、技术优势与行业意义</strong><br>打破"大模型必高成本"的行业认知，推动AI行业向低成本、高效率发展。</p>`
+            },
+            {
+                id: 'article3',
+                title: 'AI革命的真正战场：超越聊天框的原生软件重构',
+                tags: ['教机器思考', 'Agent', 'AI'],
+                source: 'https://mp.weixin.qq.com/s/MHrrKT-VNGJKLi6l-K2QPw',
+                body: `<p><strong>一、当前AI应用的致命缺陷</strong><br>旧瓶装新酒，用旧思维约束新技术。</p>
+<p><strong>二、AI原生软件的核心逻辑</strong><br>让用户定义思考方式，实现"用思维控制工具"的范式升级。</p>
+<p><strong>三、未来趋势</strong><br>从文本生成到现实任务自动化，AI成为能调用多工具的自动化助手。</p>`
+            },
+            {
+                id: 'article4',
+                title: '深度探索AI大模型原理，它到底是如何工作的',
+                tags: ['文本生成', '概率', 'AI'],
+                source: 'https://mp.weixin.qq.com/s/MHrrKT-VNGJKLi6l-K2QPw',
+                body: `<p><strong>一、文本生成的本质</strong><br>基于历史输入数据预测下一个最可能出现的token。</p>
+<p><strong>二、Llama3模型的推理核心</strong><br>Transformer解码器架构，通过Embedding、自注意力、Softmax等层实现。</p>
+<p><strong>三、核心观点</strong><br>AI大模型的"智能"源于海量数据训练下的序列预测，而非真正理解语义。</p>`
+            },
+            {
+                id: 'article5',
+                title: '人工智能神经网络基本原理',
+                tags: ['神经网络', '深度学习', 'AI'],
+                source: 'https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw',
+                body: `<p><strong>一、生物启发与早期模型</strong><br>MP神经元模型构建了多输入单输出的线性分类框架。</p>
+<p><strong>二、单层神经网络</strong><br>感知器首次实现权重自动调整。</p>
+<p><strong>三、两层神经网络</strong><br>引入隐藏层和非线性激活函数，突破线性限制。</p>
+<p><strong>四、深度学习</strong><br>通过预训练和微调技术，解决多层网络训练难题。</p>`
+            }
+        ];
+    }
+
+    function getDefaultGallery() {
+        const imgs = [];
+        for (let i = 1; i <= 16; i++) {
+            const ext = (i >= 13 && i <= 14) ? 'JPG' : 'jpg';
+            imgs.push({ id: 'img' + i, src: `images/gallery${i}.${ext}` });
+        }
+        return imgs;
+    }
+
+    // ============ 登录 ============
+    function attemptLogin() {
+        const input = document.getElementById('admin-password').value;
+        const data = getData();
+        if (input === data.password) {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('admin-page').classList.add('active');
+            renderArticles();
+            renderGallery();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+            document.getElementById('admin-password').value = '';
+        }
+    }
+
+    function logout() {
+        document.getElementById('admin-page').classList.remove('active');
+        document.getElementById('login-page').style.display = 'flex';
+        document.getElementById('admin-password').value = '';
+        document.getElementById('login-error').style.display = 'none';
+    }
+
+    // ============ Tab 切换 ============
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ============ 文章管理 ============
+    function renderArticles() {
+        const data = getData();
+        const list = document.getElementById('article-list');
+        if (data.articles.length === 0) {
+            list.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:40px;">暂无文章，点击右上角"新增文章"开始</p>';
+            return;
+        }
+        list.innerHTML = data.articles.map(a => `
+            <div class="article-item">
+                <div class="article-item-info">
+                    <div class="article-item-title">${escapeHtml(a.title)}</div>
+                    <div class="article-item-meta">
+                        ${a.tags.map(t => `<span style="background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:4px;font-size:11px;margin-right:4px;">${escapeHtml(t)}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="article-item-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="editArticle('${a.id}')">
+                        <i class="fas fa-edit"></i> 编辑
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteArticle('${a.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openEditor(id) {
+        const overlay = document.getElementById('editor-overlay');
+        overlay.classList.add('active');
+        if (id) {
+            const data = getData();
+            const article = data.articles.find(a => a.id === id);
+            if (!article) return;
+            document.getElementById('editor-title').textContent = '编辑文章';
+            document.getElementById('edit-article-id').value = id;
+            document.getElementById('edit-title').value = article.title;
+            document.getElementById('edit-tags').value = article.tags.join(', ');
+            document.getElementById('edit-body').value = article.body;
+            document.getElementById('edit-source').value = article.source || '';
+        } else {
+            document.getElementById('editor-title').textContent = '新增文章';
+            document.getElementById('edit-article-id').value = '';
+            document.getElementById('edit-title').value = '';
+            document.getElementById('edit-tags').value = '';
+            document.getElementById('edit-body').value = '';
+            document.getElementById('edit-source').value = '';
+        }
+    }
+
+    function closeEditor() {
+        document.getElementById('editor-overlay').classList.remove('active');
+    }
+
+    function editArticle(id) {
+        openEditor(id);
+    }
+
+    function saveArticle() {
+        const id = document.getElementById('edit-article-id').value;
+        const title = document.getElementById('edit-title').value.trim();
+        const tags = document.getElementById('edit-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+        const body = document.getElementById('edit-body').value.trim();
+        const source = document.getElementById('edit-source').value.trim();
+
+        if (!title) { showToast('请输入文章标题', 'error'); return; }
+        if (!body) { showToast('请输入文章内容', 'error'); return; }
+
+        const data = getData();
+        if (id) {
+            const idx = data.articles.findIndex(a => a.id === id);
+            if (idx >= 0) {
+                data.articles[idx] = { ...data.articles[idx], title, tags, body, source };
+            }
+        } else {
+            data.articles.push({
+                id: 'article_' + Date.now(),
+                title, tags, body, source
+            });
+        }
+        saveData(data);
+        renderArticles();
+        closeEditor();
+        showToast(id ? '文章已更新' : '文章已添加', 'success');
+    }
+
+    function deleteArticle(id) {
+        if (!confirm('确定删除此文章？')) return;
+        const data = getData();
+        data.articles = data.articles.filter(a => a.id !== id);
+        saveData(data);
+        renderArticles();
+        showToast('文章已删除', 'info');
+    }
+
+    // ============ 图片管理 ============
+    function renderGallery() {
+        const data = getData();
+        const grid = document.getElementById('gallery-grid');
+        grid.innerHTML = data.gallery.map(img => `
+            <div class="gallery-item-admin">
+                <img src="${img.src}" alt="${img.id}" onerror="this.style.display='none'">
+                <button class="delete-btn" onclick="deleteImage('${img.id}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('') + `
+            <div class="upload-card" onclick="document.getElementById('gallery-upload').click()">
+                <i class="fas fa-plus"></i>
+                <span>上传图片</span>
+                <input type="file" id="gallery-upload" accept="image/*" onchange="uploadImage(event)">
+            </div>
+        `;
+    }
+
+    function uploadImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = getData();
+            data.gallery.push({
+                id: 'img_' + Date.now(),
+                src: e.target.result
+            });
+            saveData(data);
+            renderGallery();
+            showToast('图片已上传', 'success');
+        };
+        reader.readAsDataURL(file);
+        event.target.value = '';
+    }
+
+    function deleteImage(id) {
+        if (!confirm('确定删除此图片？')) return;
+        const data = getData();
+        data.gallery = data.gallery.filter(img => img.id !== id);
+        saveData(data);
+        renderGallery();
+        showToast('图片已删除', 'info');
+    }
+
+    // ============ 设置 ============
+    function changePassword() {
+        const newPwd = document.getElementById('new-password').value.trim();
+        if (!newPwd) { showToast('请输入新密码', 'error'); return; }
+        const data = getData();
+        data.password = newPwd;
+        saveData(data);
+        document.getElementById('new-password').value = '';
+        showToast('密码已修改', 'success');
+    }
+
+    function exportData() {
+        const data = getData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'anki_website_backup_' + new Date().toISOString().slice(0,10) + '.json';
+        a.click();
+        showToast('数据已导出', 'success');
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (!confirm('导入将覆盖当前所有数据，确定继续？')) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!data.password || !data.articles) throw new Error('格式错误');
+                saveData(data);
+                renderArticles();
+                renderGallery();
+                showToast('数据已导入', 'success');
+            } catch (err) {
+                showToast('导入失败：文件格式不正确', 'error');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    function clearAllData() {
+        if (!confirm('确定清除所有数据？此操作不可恢复！')) return;
+        if (!confirm('再次确认：清除后将恢复为默认数据')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        renderArticles();
+        renderGallery();
+        showToast('数据已清除，恢复为默认状态', 'info');
+    }
+
+    function generateHTML() {
+        showToast('正在生成 HTML...', 'info');
+        fetch('index.html')
+            .then(r => r.text())
+            .then(html => {
+                const data = getData();
+                // 替换文章内容
+                let result = html;
+                // 替换 gallery images array in main.js
+                const galleryJs = data.gallery.map(img => `    '${img.src}'`).join(',\n');
+                result = result.replace(
+                    /const images = \[[\s\S]*?\];/,
+                    `const images = [\n${galleryJs}\n];`
+                );
+                const blob = new Blob([result], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'index.html';
+                a.click();
+                showToast('HTML 已下载', 'success');
+            })
+            .catch(() => showToast('生成失败', 'error'));
+    }
+
+    // ============ 工具函数 ============
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function showToast(msg, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast ' + type + ' show';
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // 回车登录
+    document.getElementById('admin-password').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') attemptLogin();
+    });
+    </script>
+</body>
+</html>
