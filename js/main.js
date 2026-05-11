@@ -922,7 +922,7 @@ async function generateTTS(mode) {
             if (!text) throw new Error('请输入要转换的文本');
 
             body = {
-                model: 'MiMo-V2.5-TTS-Preset',
+                model: 'mimo-v2.5-tts',
                 messages: [
                     { role: 'user', content: text },
                     { role: 'assistant', content: voice }
@@ -936,7 +936,7 @@ async function generateTTS(mode) {
             if (!text) throw new Error('请输入测试文本');
 
             body = {
-                model: 'MiMo-V2.5-TTS-VoiceDesign',
+                model: 'mimo-v2.5-tts-voicedesign',
                 messages: [
                     { role: 'user', content: text },
                     { role: 'assistant', content: desc }
@@ -958,7 +958,7 @@ async function generateTTS(mode) {
             const dataUrl = `data:${mimeType};base64,${base64}`;
 
             body = {
-                model: 'MiMo-V2.5-TTS-VoiceClone',
+                model: 'mimo-v2.5-tts-voiceclone',
                 messages: [
                     { role: 'user', content: text },
                     {
