@@ -1298,6 +1298,13 @@ footer {
     );
 }
 
+.section-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
 /* 工具导航菜单 */
 .tools-nav {
     display: flex;
