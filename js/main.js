@@ -814,4 +814,248 @@ function initializeArticles() {
     }
     
     console.log('文章切换功能初始化完成');
-} 
+}
+
+// ============ TTS 工具 ============
+const TTS_API_BASE = 'https://token-plan-cn.xiaomimimo.com/v1';
+const TTS_API_URL = TTS_API_BASE + '/chat/completions';
+
+// API Key 管理
+function getApiKey() {
+    return localStorage.getItem('tts_api_key') || '';
+}
+
+function setApiKey(key) {
+    localStorage.setItem('tts_api_key', key);
+}
+
+// 初始化 TTS 工具
+function initTTS() {
+    // 显示已保存的 key 状态
+    const savedKey = getApiKey();
+    const statusEl = document.getElementById('tts-key-status');
+    if (savedKey) {
+        statusEl.textContent = 'API Key 已保存';
+        statusEl.className = 'tts-status success';
+        document.getElementById('tts-api-key').value = savedKey;
+    }
+
+    // 保存按钮
+    document.getElementById('tts-save-key').addEventListener('click', () => {
+        const key = document.getElementById('tts-api-key').value.trim();
+        if (key) {
+            setApiKey(key);
+            statusEl.textContent = 'API Key 已保存';
+            statusEl.className = 'tts-status success';
+        } else {
+            statusEl.textContent = '请输入有效的 API Key';
+            statusEl.className = 'tts-status error';
+        }
+    });
+
+    // Tab 切换
+    document.querySelectorAll('.tts-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tts-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tts-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('panel-' + tab.dataset.model).classList.add('active');
+        });
+    });
+
+    // 音色选择
+    document.querySelectorAll('.voice-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.voice-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+        });
+    });
+
+    // 文件上传
+    const audioFile = document.getElementById('audio-file');
+    const uploadArea = document.getElementById('upload-area');
+    const audioPreview = document.getElementById('audio-preview');
+    const audioPlayer = document.getElementById('audio-player');
+    const audioName = document.getElementById('audio-name');
+
+    audioFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            audioPlayer.src = url;
+            audioName.textContent = file.name;
+            audioPreview.style.display = 'flex';
+            uploadArea.style.display = 'none';
+        }
+    });
+
+    // 拖拽上传
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--accent-primary)';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = '';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('audio/')) {
+            audioFile.files = e.dataTransfer.files;
+            audioFile.dispatchEvent(new Event('change'));
+        }
+    });
+}
+
+// 文件转 Base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// 生成 TTS
+async function generateTTS(mode) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+        alert('请先填写并保存 API Key');
+        return;
+    }
+
+    const loadingEl = document.getElementById('tts-loading');
+    const resultEl = document.getElementById('tts-result');
+    const audioEl = document.getElementById('tts-audio');
+    const btn = document.getElementById('btn-' + mode);
+
+    loadingEl.style.display = 'flex';
+    resultEl.style.display = 'none';
+    btn.disabled = true;
+
+    try {
+        let body;
+
+        if (mode === 'preset') {
+            const voice = document.querySelector('.voice-chip.active')?.dataset.voice || 'Calm_Woman';
+            const text = document.getElementById('tts-text-preset').value.trim();
+            if (!text) throw new Error('请输入要转换的文本');
+
+            body = {
+                model: 'MiMo-V2.5-TTS-Preset',
+                messages: [
+                    { role: 'user', content: text },
+                    { role: 'assistant', content: voice }
+                ],
+                audio: { format: 'wav' }
+            };
+        } else if (mode === 'design') {
+            const desc = document.getElementById('voice-desc').value.trim();
+            const text = document.getElementById('tts-text-design').value.trim();
+            if (!desc) throw new Error('请描述你想要的声音');
+            if (!text) throw new Error('请输入测试文本');
+
+            body = {
+                model: 'MiMo-V2.5-TTS-VoiceDesign',
+                messages: [
+                    { role: 'user', content: text },
+                    { role: 'assistant', content: desc }
+                ],
+                audio: { format: 'wav' }
+            };
+        } else if (mode === 'clone') {
+            const fileInput = document.getElementById('audio-file');
+            const file = fileInput.files[0];
+            if (!file) throw new Error('请上传参考音频文件');
+
+            const text = document.getElementById('tts-text-clone').value.trim();
+            if (!text) throw new Error('请输入要转换的文本');
+
+            const base64 = await fileToBase64(file);
+            const ext = file.name.split('.').pop().toLowerCase();
+            const mimeMap = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4' };
+            const mimeType = mimeMap[ext] || 'audio/wav';
+            const dataUrl = `data:${mimeType};base64,${base64}`;
+
+            body = {
+                model: 'MiMo-V2.5-TTS-VoiceClone',
+                messages: [
+                    { role: 'user', content: text },
+                    {
+                        role: 'assistant',
+                        content: '[voice_clone]',
+                        extra: {
+                            voice_clone: {
+                                type: 'audio',
+                                audio: { url: dataUrl }
+                            }
+                        }
+                    }
+                ],
+                audio: { format: 'wav' }
+            };
+        }
+
+        const resp = await fetch(TTS_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + apiKey
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!resp.ok) {
+            const errData = await resp.json().catch(() => null);
+            throw new Error(errData?.error?.message || `请求失败: HTTP ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        const audioBase64 = data.choices?.[0]?.message?.audio?.data;
+        if (!audioBase64) throw new Error('未收到音频数据');
+
+        const audioBlob = base64ToBlob(audioBase64, 'audio/wav');
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        audioEl.src = audioUrl;
+        resultEl.style.display = 'block';
+
+        // 存储下载用
+        window._ttsBlob = audioBlob;
+
+    } catch (err) {
+        alert('生成失败：' + err.message);
+    } finally {
+        loadingEl.style.display = 'none';
+        btn.disabled = false;
+    }
+}
+
+// Base64 转 Blob
+function base64ToBlob(base64, mimeType) {
+    const byteCharacters = atob(base64);
+    const byteArray = new Uint8Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteArray[i] = byteCharacters.charCodeAt(i);
+    }
+    return new Blob([byteArray], { type: mimeType });
+}
+
+// 下载音频
+function downloadAudio() {
+    if (!window._ttsBlob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(window._ttsBlob);
+    a.download = 'tts_output_' + Date.now() + '.wav';
+    a.click();
+}
+
+// 页面加载时初始化 TTS
+document.addEventListener('DOMContentLoaded', initTTS); 

@@ -138,7 +138,8 @@ section.page.active.hero {
 section.page.active.about,
 section.page.active.projects,
 section.page.active.gallery,
-section.page.active.contact {
+section.page.active.contact,
+section.page.active.vibecoding {
     display: block;
 }
 
@@ -1276,4 +1277,475 @@ footer {
 
 .placeholder-qrcode p {
     margin: 0;
-} 
+}
+
+/* ============ Vibe Coding 页面 ============ */
+.vibecoding {
+    padding: 120px 5% 80px;
+    min-height: 100vh;
+}
+
+.vibecoding h2 {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 18px;
+    margin-bottom: 48px;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tool-card {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 32px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tool-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+.tool-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.tool-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent-primary), #5856d6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.tool-info h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.tool-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.coming-soon {
+    opacity: 0.5;
+    border-style: dashed;
+}
+
+.coming-soon:hover {
+    opacity: 0.6;
+}
+
+/* ============ TTS 工具样式 ============ */
+.tts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tts-api-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tts-api-row {
+    display: flex;
+    gap: 10px;
+}
+
+.tts-api-row input {
+    flex: 1;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.tts-api-row input:focus {
+    border-color: var(--accent-primary);
+}
+
+.btn-save {
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.tts-status {
+    font-size: 13px;
+    color: var(--text-secondary);
+    min-height: 20px;
+}
+
+.tts-status.success {
+    color: #30d158;
+}
+
+.tts-status.error {
+    color: #ff453a;
+}
+
+/* TTS Tabs */
+.tts-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tts-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+
+.tts-tab:hover {
+    color: var(--text-primary);
+}
+
+.tts-tab.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+/* TTS Panels */
+.tts-panel {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.tts-panel.active {
+    display: flex;
+}
+
+.tts-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tts-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.tts-field .hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.tts-field textarea {
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.tts-field textarea:focus {
+    border-color: var(--accent-primary);
+}
+
+.tts-field textarea::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* Voice Chips */
+.voice-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.voice-chip {
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.voice-chip:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+}
+
+.voice-chip.active {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    position: relative;
+}
+
+.upload-area:hover {
+    border-color: var(--accent-primary);
+    background: rgba(41, 151, 255, 0.05);
+}
+
+.upload-area i {
+    font-size: 36px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.upload-area p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.upload-area input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.audio-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.audio-preview audio {
+    flex: 1;
+    height: 36px;
+}
+
+.audio-preview span {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Generate Button */
+.btn-generate {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--accent-primary), #5856d6);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-generate:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(41, 151, 255, 0.3);
+}
+
+.btn-generate:active {
+    transform: translateY(0);
+}
+
+.btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Result */
+.tts-result {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.result-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.btn-download {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s ease;
+}
+
+.btn-download:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.tts-result audio {
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+}
+
+/* Loading */
+.tts-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2.5px solid rgba(255, 255, 255, 0.15);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Vibe Coding 响应式 */
+@media (max-width: 768px) {
+    .vibecoding {
+        padding: 100px 16px 60px;
+    }
+
+    .vibecoding h2 {
+        font-size: 32px;
+    }
+
+    .section-subtitle {
+        font-size: 15px;
+        margin-bottom: 32px;
+    }
+
+    .tool-card {
+        padding: 20px;
+    }
+
+    .tts-api-row {
+        flex-direction: column;
+    }
+
+    .tts-tabs {
+        flex-direction: column;
+    }
+
+    .voice-grid {
+        gap: 6px;
+    }
+
+    .voice-chip {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn-generate {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}

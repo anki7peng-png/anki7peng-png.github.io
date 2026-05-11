@@ -26,6 +26,7 @@
             <li><a href="#" data-page="about">关于我</a></li>
             <li><a href="#" data-page="projects">读的</a></li>
             <li><a href="#" data-page="gallery">看的</a></li>
+            <li><a href="#" data-page="vibecoding">Vibe Coding</a></li>
             <li><a href="#" data-page="contact">找到我</a></li>
         </ul>
     </nav>
@@ -279,6 +280,137 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
                     <button class="next-btn">&gt;</button>
                 </div>
                 <div class="gallery-pagination"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vibe Coding Section -->
+    <section id="vibecoding" class="vibecoding page">
+        <h2>Vibe Coding</h2>
+        <p class="section-subtitle">用 AI 创造，让想法发声</p>
+
+        <div class="tools-grid">
+            <!-- TTS 工具卡片 -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h3>MiMo V2.5 TTS</h3>
+                        <p>小米语音合成 · 支持预设音色 / 声音设计 / 声音克隆</p>
+                    </div>
+                </div>
+
+                <div class="tts-container">
+                    <!-- API Key 输入 -->
+                    <div class="tts-api-section">
+                        <div class="tts-api-row">
+                            <input type="password" id="tts-api-key" placeholder="输入 API Key（首次使用需填写，之后自动保存）">
+                            <button id="tts-save-key" class="btn-save">保存</button>
+                        </div>
+                        <div id="tts-key-status" class="tts-status"></div>
+                    </div>
+
+                    <!-- 模型选择 -->
+                    <div class="tts-tabs">
+                        <button class="tts-tab active" data-model="preset">预设音色</button>
+                        <button class="tts-tab" data-model="design">声音设计</button>
+                        <button class="tts-tab" data-model="clone">声音克隆</button>
+                    </div>
+
+                    <!-- 预设音色面板 -->
+                    <div class="tts-panel active" id="panel-preset">
+                        <div class="tts-field">
+                            <label>选择音色</label>
+                            <div class="voice-grid" id="preset-voices">
+                                <button class="voice-chip active" data-voice="Calm_Woman">温柔女声</button>
+                                <button class="voice-chip" data-voice="Cute_Woman">甜美女声</button>
+                                <button class="voice-chip" data-voice="Cute_Boy">可爱男声</button>
+                                <button class="voice-chip" data-voice="Deep_Voice_Man">低沉男声</button>
+                                <button class="voice-chip" data-voice="Lively_Girl">活泼女声</button>
+                                <button class="voice-chip" data-voice="Confident_Man">自信男声</button>
+                                <button class="voice-chip" data-voice="Sweet_Girl">甜美女声</button>
+                                <button class="voice-chip" data-voice="Gentle_Man">儒雅男声</button>
+                            </div>
+                        </div>
+                        <div class="tts-field">
+                            <label>输入文本</label>
+                            <textarea id="tts-text-preset" placeholder="在这里输入你想转换为语音的文字..." rows="4">你好，欢迎来到我的个人网站。我是一个热爱AI技术的健身爱好者。</textarea>
+                        </div>
+                        <button class="btn-generate" id="btn-preset" onclick="generateTTS('preset')">
+                            <i class="fas fa-play"></i> 生成语音
+                        </button>
+                    </div>
+
+                    <!-- 声音设计面板 -->
+                    <div class="tts-panel" id="panel-design">
+                        <div class="tts-field">
+                            <label>描述你想要的声音</label>
+                            <textarea id="voice-desc" placeholder="例如：一个温柔的年轻女性声音，说话速度稍慢，带有南方口音" rows="3"></textarea>
+                        </div>
+                        <div class="tts-field">
+                            <label>测试文本</label>
+                            <textarea id="tts-text-design" placeholder="用这个声音来说..." rows="3">今天天气真不错，我们一起去公园走走吧。</textarea>
+                        </div>
+                        <button class="btn-generate" id="btn-design" onclick="generateTTS('design')">
+                            <i class="fas fa-magic"></i> 设计并生成
+                        </button>
+                    </div>
+
+                    <!-- 声音克隆面板 -->
+                    <div class="tts-panel" id="panel-clone">
+                        <div class="tts-field">
+                            <label>上传参考音频 <span class="hint">（支持 WAV / MP3 / M4A）</span></label>
+                            <div class="upload-area" id="upload-area">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>点击或拖拽上传音频文件</p>
+                                <input type="file" id="audio-file" accept=".wav,.mp3,.m4a,audio/*">
+                            </div>
+                            <div id="audio-preview" class="audio-preview" style="display:none">
+                                <audio id="audio-player" controls></audio>
+                                <span id="audio-name"></span>
+                            </div>
+                        </div>
+                        <div class="tts-field">
+                            <label>输入文本</label>
+                            <textarea id="tts-text-clone" placeholder="用克隆的声音来说..." rows="3">大家好，这是用我的声音生成的语音，听起来是不是很像？</textarea>
+                        </div>
+                        <button class="btn-generate" id="btn-clone" onclick="generateTTS('clone')">
+                            <i class="fas fa-clone"></i> 克隆并生成
+                        </button>
+                    </div>
+
+                    <!-- 结果区域 -->
+                    <div id="tts-result" class="tts-result" style="display:none">
+                        <div class="result-header">
+                            <span class="result-label">生成结果</span>
+                            <button class="btn-download" id="btn-download" onclick="downloadAudio()">
+                                <i class="fas fa-download"></i> 下载
+                            </button>
+                        </div>
+                        <audio id="tts-audio" controls></audio>
+                    </div>
+
+                    <!-- 加载动画 -->
+                    <div id="tts-loading" class="tts-loading" style="display:none">
+                        <div class="loading-spinner"></div>
+                        <span>正在生成语音...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 更多工具占位 -->
+            <div class="tool-card coming-soon">
+                <div class="tool-header">
+                    <div class="tool-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h3>更多工具</h3>
+                        <p>即将上线...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
