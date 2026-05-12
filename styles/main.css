@@ -1287,9 +1287,9 @@ footer {
 
 .vibecoding-sticky {
     position: sticky;
-    top: 0;
+    top: 48px;
     z-index: 100;
-    padding: 42px 5% 0;
+    padding: 8px 5% 0;
     background: linear-gradient(
         to bottom,
         var(--bg-primary) 0%,
@@ -1716,7 +1716,7 @@ footer {
 /* Vibe Coding 响应式 */
 @media (max-width: 768px) {
     .vibecoding-sticky {
-        padding: 36px 16px 0;
+        padding: 8px 16px 0;
     }
 
     .tools-nav {
