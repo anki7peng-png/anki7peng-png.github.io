@@ -32,7 +32,7 @@ h1, h2, h3, h4, h5, h6 {
 /* 导航栏样式 */
 .nav-container {
     position: fixed;
-    top: 0;
+    top: 2px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -138,9 +138,12 @@ section.page.active.hero {
 section.page.active.about,
 section.page.active.projects,
 section.page.active.gallery,
-section.page.active.contact,
 section.page.active.vibecoding {
     display: block;
+}
+
+section.page.active.contact {
+    display: flex;
 }
 
 /* 导航栏滚动态 */
@@ -844,8 +847,12 @@ section.page.active.vibecoding {
 
 /* Contact Section 样式 */
 .contact {
-    padding: 100px max(22px, env(safe-area-inset-left));
+    padding: 0 max(22px, env(safe-area-inset-left));
     background: var(--bg-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .contact h2 {
