@@ -1437,8 +1437,8 @@ footer {
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.6;
-    padding: 8px 0 0;
-    margin: 0;
+    padding: 0;
+    margin: -20px 0 0;
 }
 
 .tts-intro a {
