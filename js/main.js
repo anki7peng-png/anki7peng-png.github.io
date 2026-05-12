@@ -855,8 +855,16 @@ function initTTS() {
         const file = e.target.files[0];
         if (file) {
             const url = URL.createObjectURL(file);
-            audioPlayer.src = url;
-            audioName.textContent = file.name;
+            const isVideo = file.type.startsWith('video/');
+            if (isVideo) {
+                audioPlayer.src = '';
+                audioPlayer.style.display = 'none';
+                audioName.textContent = file.name + '（视频，将自动提取音频）';
+            } else {
+                audioPlayer.src = url;
+                audioPlayer.style.display = '';
+                audioName.textContent = file.name;
+            }
             audioPreview.style.display = 'flex';
             uploadArea.style.display = 'none';
         }
@@ -876,7 +884,7 @@ function initTTS() {
         e.preventDefault();
         uploadArea.style.borderColor = '';
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('audio/')) {
+        if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
             audioFile.files = e.dataTransfer.files;
             audioFile.dispatchEvent(new Event('change'));
         }
@@ -894,6 +902,72 @@ function fileToBase64(file) {
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
+}
+
+// 从视频中提取音频并转为 WAV data URL
+async function extractAudioFromVideo(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await audioCtx.decodeAudioData(arrayBuffer);
+    audioCtx.close();
+
+    // 转为单声道 16kHz（减小体积，API 限制 10MB）
+    const sampleRate = Math.min(decoded.sampleRate, 16000);
+    const channels = 1;
+    const length = Math.ceil(decoded.duration * sampleRate);
+    const offline = new OfflineAudioContext(channels, length, sampleRate);
+    const source = offline.createBufferSource();
+    source.buffer = decoded;
+    source.connect(offline.destination);
+    source.start();
+    const rendered = await offline.startRendering();
+
+    // PCM → WAV
+    const pcm = rendered.getChannelData(0);
+    const wavBuffer = pcmToWav(pcm, sampleRate);
+    const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+    return await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
+}
+
+// PCM float32 → WAV ArrayBuffer
+function pcmToWav(samples, sampleRate) {
+    const numChannels = 1;
+    const bitsPerSample = 16;
+    const bytesPerSample = bitsPerSample / 8;
+    const dataLength = samples.length * bytesPerSample;
+    const buffer = new ArrayBuffer(44 + dataLength);
+    const view = new DataView(buffer);
+
+    function writeString(offset, str) {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+    }
+
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + dataLength, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * numChannels * bytesPerSample, true);
+    view.setUint16(32, numChannels * bytesPerSample, true);
+    view.setUint16(34, bitsPerSample, true);
+    writeString(36, 'data');
+    view.setUint32(40, dataLength, true);
+
+    let offset = 44;
+    for (let i = 0; i < samples.length; i++) {
+        const s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+    }
+
+    return buffer;
 }
 
 // 生成 TTS
@@ -951,11 +1025,19 @@ async function generateTTS(mode) {
             const text = document.getElementById('tts-text-clone').value.trim();
             if (!text) throw new Error('请输入要转换的文本');
 
-            const base64 = await fileToBase64(file);
-            const ext = file.name.split('.').pop().toLowerCase();
-            const mimeMap = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4' };
-            const mimeType = mimeMap[ext] || 'audio/wav';
-            const dataUrl = `data:${mimeType};base64,${base64}`;
+            let dataUrl;
+            const isVideo = file.type.startsWith('video/');
+            if (isVideo) {
+                // 视频文件：提取音频并转为 WAV
+                dataUrl = await extractAudioFromVideo(file);
+            } else {
+                // 音频文件：直接使用
+                const base64 = await fileToBase64(file);
+                const ext = file.name.split('.').pop().toLowerCase();
+                const mimeMap = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4', ogg: 'audio/ogg', flac: 'audio/flac', aac: 'audio/aac' };
+                const mimeType = mimeMap[ext] || 'audio/wav';
+                dataUrl = `data:${mimeType};base64,${base64}`;
+            }
 
             body = {
                 model: 'mimo-v2.5-tts-voiceclone',

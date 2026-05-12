@@ -361,11 +361,12 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
                     <!-- 声音克隆面板 -->
                     <div class="tts-panel" id="panel-clone">
                         <div class="tts-field">
-                            <label>上传参考音频 <span class="hint">（支持 WAV / MP3 / M4A）</span></label>
+                            <label>上传参考音频 <span class="hint">（支持音频和常见视频格式，视频会自动提取音频）</span></label>
                             <div class="upload-area" id="upload-area">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <p>点击或拖拽上传音频文件</p>
-                                <input type="file" id="audio-file" accept=".wav,.mp3,.m4a,audio/*">
+                                <p>点击或拖拽上传文件</p>
+                                <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">音频：WAV / MP3 / M4A / OGG / FLAC / AAC &nbsp;|&nbsp; 视频：MP4 / MOV / AVI / MKV / WEBM</p>
+                                <input type="file" id="audio-file" accept=".wav,.mp3,.m4a,.ogg,.flac,.aac,.mp4,.mov,.avi,.mkv,.webm,audio/*,video/*">
                             </div>
                             <div id="audio-preview" class="audio-preview" style="display:none">
                                 <audio id="audio-player" controls></audio>
