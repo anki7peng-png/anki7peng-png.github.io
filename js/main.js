@@ -967,6 +967,7 @@ async function generateTTS(mode) {
             };
         }
 
+        console.log('TTS request body:', JSON.stringify(body));
         const resp = await fetch(TTS_API_URL, {
             method: 'POST',
             headers: {
@@ -995,6 +996,7 @@ async function generateTTS(mode) {
         window._ttsBlob = audioBlob;
 
     } catch (err) {
+        console.error('TTS Error:', err);
         alert('生成失败：' + err.message);
     } finally {
         loadingEl.style.display = 'none';
