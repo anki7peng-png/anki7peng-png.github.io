@@ -541,6 +541,7 @@ function navigateTo(pageId, updateHash = true) {
     // 更新 URL hash
     if (updateHash) {
         history.replaceState(null, '', '#' + pageId);
+        sessionStorage.setItem('anki_current_page', pageId);
     }
 
     // 淡出当前页
@@ -573,20 +574,27 @@ document.querySelectorAll('.nav-links a[data-page]').forEach(link => {
 // 根据 URL hash 恢复页面
 function restorePageFromHash() {
     const hash = location.hash.replace('#', '');
-    if (hash && document.getElementById(hash) && hash !== 'home') {
+    const saved = sessionStorage.getItem('anki_current_page');
+    const pageId = (hash && document.getElementById(hash) && hash !== 'home') ? hash
+        : (saved && document.getElementById(saved) && saved !== 'home') ? saved
+        : null;
+    console.log('[restore] hash:', hash, 'saved:', saved, 'pageId:', pageId);
+    if (pageId) {
         // 直接切换，不用动画
         const homePage = document.getElementById('home');
-        const targetPage = document.getElementById(hash);
+        const targetPage = document.getElementById(pageId);
         homePage.classList.remove('active');
         targetPage.classList.add('active');
         targetPage.style.opacity = '1';
         // 更新导航高亮 + 滑块
         document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-        const activeLink = document.querySelector(`.nav-links a[data-page="${hash}"]`);
+        const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
             moveSliderTo(activeLink, false);
         }
+        // 同步 hash
+        history.replaceState(null, '', '#' + pageId);
     }
 }
 
