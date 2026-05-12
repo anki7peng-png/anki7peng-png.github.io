@@ -1295,7 +1295,7 @@ footer {
 .vibecoding-subtitle {
     padding: 60px 5% 0;
     margin: 0;
-    font-size: 27px;
+    font-size: 40px;
 }
 
 .vibecoding-sticky {
@@ -1730,7 +1730,7 @@ footer {
 @media (max-width: 768px) {
     .vibecoding-subtitle {
         padding: 52px 16px 0;
-        font-size: 22px;
+        font-size: 30px;
     }
 
     .vibecoding-sticky {
