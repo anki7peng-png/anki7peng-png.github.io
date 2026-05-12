@@ -941,7 +941,7 @@ async function generateTTS(mode) {
                     { role: 'user', content: desc },
                     { role: 'assistant', content: text }
                 ],
-                audio: { format: 'wav', voice: 'mimo_default' }
+                audio: { format: 'wav' }
             };
         } else if (mode === 'clone') {
             const fileInput = document.getElementById('audio-file');
