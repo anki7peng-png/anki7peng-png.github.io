@@ -513,7 +513,7 @@ function moveSliderTo(link, animate = true) {
 function initSlider() {
     const activeLink = document.querySelector('.nav-links a.active');
     if (activeLink) {
-        requestAnimationFrame(() => moveSliderTo(activeLink, false));
+        moveSliderTo(activeLink, false);
     }
 }
 
