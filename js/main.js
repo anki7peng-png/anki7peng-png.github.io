@@ -924,10 +924,10 @@ async function generateTTS(mode) {
             body = {
                 model: 'mimo-v2.5-tts',
                 messages: [
-                    { role: 'user', content: voice },
+                    { role: 'user', content: '' },
                     { role: 'assistant', content: text }
                 ],
-                audio: { format: 'wav' }
+                audio: { format: 'wav', voice: voice }
             };
         } else if (mode === 'design') {
             const desc = document.getElementById('voice-desc').value.trim();
@@ -941,7 +941,7 @@ async function generateTTS(mode) {
                     { role: 'user', content: desc },
                     { role: 'assistant', content: text }
                 ],
-                audio: { format: 'wav' }
+                audio: { format: 'wav', voice: 'mimo_default' }
             };
         } else if (mode === 'clone') {
             const fileInput = document.getElementById('audio-file');
@@ -960,20 +960,10 @@ async function generateTTS(mode) {
             body = {
                 model: 'mimo-v2.5-tts-voiceclone',
                 messages: [
-                    { role: 'user', content: '[voice_clone]' },
-                    { role: 'assistant', content: text },
-                    {
-                        role: 'user',
-                        content: '',
-                        extra: {
-                            voice_clone: {
-                                type: 'audio',
-                                audio: { url: dataUrl }
-                            }
-                        }
-                    }
+                    { role: 'user', content: '' },
+                    { role: 'assistant', content: text }
                 ],
-                audio: { format: 'wav' }
+                audio: { format: 'wav', voice: dataUrl }
             };
         }
 
