@@ -518,7 +518,10 @@ function initSlider() {
 }
 
 // 页面加载和窗口变化时初始化
-document.addEventListener('DOMContentLoaded', initSlider);
+document.addEventListener('DOMContentLoaded', () => {
+    initSlider();
+    restorePageFromHash();
+});
 window.addEventListener('resize', initSlider);
 
 // SPA 页面切换
@@ -571,12 +574,21 @@ document.querySelectorAll('.nav-links a[data-page]').forEach(link => {
 function restorePageFromHash() {
     const hash = location.hash.replace('#', '');
     if (hash && document.getElementById(hash) && hash !== 'home') {
-        navigateTo(hash, false);
+        // 直接切换，不用动画
+        const homePage = document.getElementById('home');
+        const targetPage = document.getElementById(hash);
+        homePage.classList.remove('active');
+        targetPage.classList.add('active');
+        targetPage.style.opacity = '1';
+        // 更新导航高亮 + 滑块
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-links a[data-page="${hash}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+            moveSliderTo(activeLink, false);
+        }
     }
 }
-
-// 页面加载时恢复
-restorePageFromHash();
 
 // 浏览器前进/后退
 window.addEventListener('popstate', () => {
