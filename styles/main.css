@@ -1293,9 +1293,9 @@ footer {
 }
 
 .vibecoding-subtitle {
-    padding: 56px 5% 0;
+    padding: 60px 5% 0;
     margin: 0;
-    font-size: 18px;
+    font-size: 27px;
 }
 
 .vibecoding-sticky {
@@ -1729,8 +1729,8 @@ footer {
 /* Vibe Coding 响应式 */
 @media (max-width: 768px) {
     .vibecoding-subtitle {
-        padding: 48px 16px 0;
-        font-size: 16px;
+        padding: 52px 16px 0;
+        font-size: 22px;
     }
 
     .vibecoding-sticky {
