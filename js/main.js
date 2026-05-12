@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', initSlider);
 window.addEventListener('resize', initSlider);
 
 // SPA 页面切换
-function navigateTo(pageId) {
+function navigateTo(pageId, updateHash = true) {
     const currentPage = document.querySelector('.page.active');
     const targetPage = document.getElementById(pageId);
     if (!targetPage || currentPage === targetPage) return;
@@ -533,6 +533,11 @@ function navigateTo(pageId) {
     if (activeLink) {
         activeLink.classList.add('active');
         moveSliderTo(activeLink);
+    }
+
+    // 更新 URL hash
+    if (updateHash) {
+        history.replaceState(null, '', '#' + pageId);
     }
 
     // 淡出当前页
@@ -560,6 +565,23 @@ document.querySelectorAll('.nav-links a[data-page]').forEach(link => {
         e.preventDefault();
         navigateTo(this.dataset.page);
     });
+});
+
+// 根据 URL hash 恢复页面
+function restorePageFromHash() {
+    const hash = location.hash.replace('#', '');
+    if (hash && document.getElementById(hash) && hash !== 'home') {
+        navigateTo(hash, false);
+    }
+}
+
+// 页面加载时恢复
+restorePageFromHash();
+
+// 浏览器前进/后退
+window.addEventListener('popstate', () => {
+    const hash = location.hash.replace('#', '') || 'home';
+    navigateTo(hash, false);
 });
 
 // 导航栏滚动毛玻璃
