@@ -32,7 +32,7 @@ h1, h2, h3, h4, h5, h6 {
 /* 导航栏样式 */
 .nav-container {
     position: fixed;
-    top: 2px;
+    top: 4px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
