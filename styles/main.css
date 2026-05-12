@@ -32,7 +32,7 @@ h1, h2, h3, h4, h5, h6 {
 /* 导航栏样式 */
 .nav-container {
     position: fixed;
-    top: 20px;
+    top: 12px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -1286,7 +1286,7 @@ footer {
 }
 
 .vibecoding-subtitle {
-    padding: 52px 5% 0;
+    padding: 44px 5% 0;
     margin: 0;
 }
 
@@ -1721,7 +1721,7 @@ footer {
 /* Vibe Coding 响应式 */
 @media (max-width: 768px) {
     .vibecoding-subtitle {
-        padding: 44px 16px 0;
+        padding: 36px 16px 0;
     }
 
     .vibecoding-sticky {
