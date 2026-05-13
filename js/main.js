@@ -1070,18 +1070,29 @@ async function generateTTS(mode) {
             const text = document.getElementById('tts-text-clone').value.trim();
             if (!text) throw new Error('请输入要转换的文本');
 
+            // 文件大小检查（DataURL 会膨胀约 33%，API 限制约 10MB）
+            if (file.size > 6 * 1024 * 1024) {
+                throw new Error('文件太大（' + (file.size / 1024 / 1024).toFixed(1) + 'MB），请使用 6MB 以内的音频或短视频');
+            }
+
             let dataUrl;
             const isVideo = file.type.startsWith('video/');
-            if (isVideo) {
-                // 视频文件：提取音频并转为 WAV
-                dataUrl = await extractAudioFromVideo(file);
-            } else {
-                // 音频文件：直接使用
-                const base64 = await fileToBase64(file);
-                const ext = file.name.split('.').pop().toLowerCase();
-                const mimeMap = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4', ogg: 'audio/ogg', flac: 'audio/flac', aac: 'audio/aac' };
-                const mimeType = mimeMap[ext] || 'audio/wav';
-                dataUrl = `data:${mimeType};base64,${base64}`;
+            try {
+                if (isVideo) {
+                    dataUrl = await extractAudioFromVideo(file);
+                } else {
+                    const base64 = await fileToBase64(file);
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const mimeMap = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4', ogg: 'audio/ogg', flac: 'audio/flac', aac: 'audio/aac' };
+                    const mimeType = mimeMap[ext] || 'audio/wav';
+                    dataUrl = `data:${mimeType};base64,${base64}`;
+                }
+            } catch (e) {
+                throw new Error('音频处理失败：' + e.message);
+            }
+
+            if (!dataUrl || !dataUrl.startsWith('data:')) {
+                throw new Error('音频格式不支持，请使用 WAV、MP3、M4A 格式或短视频');
             }
 
             body = {
@@ -1106,7 +1117,9 @@ async function generateTTS(mode) {
 
         if (!resp.ok) {
             const errData = await resp.json().catch(() => null);
-            throw new Error(errData?.error?.message || `请求失败: HTTP ${resp.status}`);
+            const errMsg = errData?.error?.message || `请求失败: HTTP ${resp.status}`;
+            const errParam = errData?.error?.param || '';
+            throw new Error(errParam ? errMsg + '：' + errParam : errMsg);
         }
 
         const data = await resp.json();
