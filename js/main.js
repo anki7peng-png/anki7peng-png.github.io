@@ -1076,23 +1076,23 @@ async function generateTTS(mode) {
             }
 
             let dataUrl;
-            const isVideo = file.type.startsWith('video/');
+            const ext = file.name.split('.').pop().toLowerCase();
             try {
-                if (isVideo) {
-                    dataUrl = await extractAudioFromVideo(file);
-                } else {
+                if (ext === 'wav' || ext === 'mp3') {
+                    // WAV/MP3 直接使用
                     const base64 = await fileToBase64(file);
-                    const ext = file.name.split('.').pop().toLowerCase();
-                    const mimeMap = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4', ogg: 'audio/ogg', flac: 'audio/flac', aac: 'audio/aac' };
-                    const mimeType = mimeMap[ext] || 'audio/wav';
+                    const mimeType = ext === 'mp3' ? 'audio/mpeg' : 'audio/wav';
                     dataUrl = `data:${mimeType};base64,${base64}`;
+                } else {
+                    // 其他格式（视频、M4A、OGG 等）统一转为 WAV
+                    dataUrl = await extractAudioFromVideo(file);
                 }
             } catch (e) {
                 throw new Error('音频处理失败：' + e.message);
             }
 
             if (!dataUrl || !dataUrl.startsWith('data:')) {
-                throw new Error('音频格式不支持，请使用 WAV、MP3、M4A 格式或短视频');
+                throw new Error('音频处理失败，请使用 WAV 或 MP3 格式');
             }
 
             body = {
