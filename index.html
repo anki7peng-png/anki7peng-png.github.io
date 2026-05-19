@@ -420,35 +420,42 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
                     </div>
                 </div>
 
-                <div class="aa-container">
-                    <div class="aa-features">
-                        <div class="aa-feature">
-                            <div class="aa-feature-icon">👥</div>
-                            <div class="aa-feature-text">
-                                <div class="aa-feature-title">添加成员</div>
-                                <div class="aa-feature-desc">快速添加聚餐/出行伙伴，最多支持20人</div>
-                            </div>
+                <div class="aa-tool">
+                    <!-- 参与成员 -->
+                    <div class="aa-section">
+                        <div class="aa-section-header">
+                            <span class="aa-section-title">参与成员</span>
                         </div>
-                        <div class="aa-feature">
-                            <div class="aa-feature-icon">📝</div>
-                            <div class="aa-feature-text">
-                                <div class="aa-feature-title">记录费用</div>
-                                <div class="aa-feature-desc">支持多笔费用，谁付的都记清</div>
-                            </div>
-                        </div>
-                        <div class="aa-feature">
-                            <div class="aa-feature-icon">🧮</div>
-                            <div class="aa-feature-text">
-                                <div class="aa-feature-title">智能计算</div>
-                                <div class="aa-feature-desc">自动算出最优转账方案，一键生成分享图</div>
-                            </div>
-                        </div>
+                        <div class="aa-members-input" id="aa-members-input"></div>
+                        <button class="aa-add-btn" id="aa-add-member">
+                            <span>+</span> 添加成员
+                        </button>
                     </div>
 
-                    <div class="aa-qr-section">
-                        <p class="aa-qr-hint">微信扫码，立即使用</p>
-                        <img src="A一下-小程序码.jpg" alt="A一下小程序码" class="aa-qr-img" />
-                        <p class="aa-qr-sub">微信小程序 · 无需下载</p>
+                    <!-- 费用明细 -->
+                    <div class="aa-section">
+                        <div class="aa-section-header">
+                            <span class="aa-section-title">费用明细</span>
+                        </div>
+                        <div id="aa-expenses"></div>
+                        <button class="aa-add-btn" id="aa-add-expense">
+                            <span>+</span> 添加费用
+                        </button>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="aa-actions">
+                        <button class="aa-btn-primary" id="aa-calculate">🧮 计算结果</button>
+                        <button class="aa-btn-secondary" id="aa-reset">🔄 重新计算</button>
+                    </div>
+
+                    <!-- 结果区域 -->
+                    <div id="aa-result" class="aa-result" style="display:none"></div>
+
+                    <!-- QR Code -->
+                    <div class="aa-footer">
+                        <img src="A一下-小程序码.jpg" alt="A一下小程序码" class="aa-footer-qr" />
+                        <span class="aa-footer-text">微信扫码，使用完整版小程序</span>
                     </div>
                 </div>
             </div>
@@ -483,5 +490,6 @@ https://mp.weixin.qq.com/s/o7y7X50K7-EZjc4XhU-nZw</a></p>
 
     <!-- 主脚本 -->
     <script src="js/main.js"></script>
+    <script src="js/aa-tool.js"></script>
 </body>
 </html> 
