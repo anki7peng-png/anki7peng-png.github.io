@@ -89,8 +89,8 @@ function initScrollAnimations() {
     });
 }
 
-// 图片数组 - 包含各种格式
-const images = [
+// 图片数组 - 优先从管理后台读取，否则使用默认值
+const defaultImages = [
     'images/gallery1.jpg',
     'images/gallery2.jpg',
     'images/gallery3.jpg',
@@ -108,6 +108,18 @@ const images = [
     'images/gallery15.jpg',
     'images/gallery16.jpg'
 ];
+
+function getImages() {
+    try {
+        const data = JSON.parse(localStorage.getItem('anki_admin_data'));
+        if (data && data.gallery && data.gallery.length > 0) {
+            return data.gallery.map(img => img.src);
+        }
+    } catch (e) {}
+    return defaultImages;
+}
+
+const images = getImages();
 
 // 当前图片索引
 let currentImageIndex = 0;
@@ -311,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeBackToTop();
         initializeCursorGlow();
         initializeAboutCarousel();
+        loadArticlesFromStorage(); // 从管理后台加载文章
         initializeArticles(); // 初始化文章切换功能
     } catch (error) {
         console.error('初始化错误:', error);
@@ -791,6 +804,35 @@ function initializeAboutCarousel() {
             });
         }
     });
+}
+
+// 从管理后台 localStorage 加载文章数据
+function loadArticlesFromStorage() {
+    try {
+        const data = JSON.parse(localStorage.getItem('anki_admin_data'));
+        if (!data || !data.articles || data.articles.length === 0) return;
+
+        const listEl = document.querySelector('.article-list');
+        const contentEl = document.querySelector('.article-content');
+        if (!listEl || !contentEl) return;
+
+        // 渲染文章标题列表
+        listEl.innerHTML = data.articles.map((a, i) =>
+            `<div class="article-title${i === 0 ? ' active' : ''}" data-article="${a.id}">${a.title}</div>`
+        ).join('');
+
+        // 渲染文章内容
+        contentEl.innerHTML = data.articles.map((a, i) => {
+            const tagsHtml = a.tags.map(t => `<span class="article-tag">${t}</span>`).join('');
+            const sourceHtml = a.source ? `<div class="article-source"><p><strong>拓展资源</strong><br><a href="${a.source}" target="_blank">${a.source}</a></p></div>` : '';
+            return `<div id="${a.id}" class="article${i === 0 ? ' active' : ''}">
+                <h3>${a.title}</h3>
+                ${a.body}
+                ${sourceHtml}
+                <div class="article-tags">${tagsHtml}</div>
+            </div>`;
+        }).join('');
+    } catch (e) {}
 }
 
 // 初始化文章切换功能
