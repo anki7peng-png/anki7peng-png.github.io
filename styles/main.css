@@ -1426,6 +1426,86 @@ footer {
     opacity: 0.6;
 }
 
+/* ============ A一下 工具样式 ============ */
+.tool-icon-aa {
+    background: linear-gradient(135deg, #ff9500, #ff6b00);
+}
+
+.aa-container {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start;
+    margin-top: 28px;
+}
+
+.aa-features {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.aa-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.aa-feature-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.aa-feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.aa-feature-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.aa-feature-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.aa-qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.aa-qr-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.aa-qr-img {
+    width: 160px;
+    height: 160px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    object-fit: cover;
+}
+
+.aa-qr-sub {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
 /* ============ TTS 工具样式 ============ */
 .tts-container {
     display: flex;
@@ -1774,5 +1854,19 @@ footer {
     .btn-generate {
         padding: 12px 20px;
         font-size: 15px;
+    }
+
+    .aa-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .aa-features {
+        width: 100%;
+    }
+
+    .aa-qr-img {
+        width: 140px;
+        height: 140px;
     }
 }
