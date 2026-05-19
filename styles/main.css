@@ -1410,6 +1410,21 @@ footer {
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tool-why {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 3px 10px;
+    white-space: nowrap;
 }
 
 .tool-info p {
@@ -2297,6 +2312,15 @@ footer {
 
     .tool-card {
         padding: 20px;
+    }
+
+    .tool-info h3 {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .tool-why {
+        white-space: normal;
     }
 
     .tts-api-row {
