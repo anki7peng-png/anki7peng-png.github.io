@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>后台管理 - Anki's Website</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <style>
         :root {
             --bg-primary: #000;
@@ -524,11 +525,11 @@
             </div>
 
             <div class="setting-card">
-                <h4>生成静态页面</h4>
-                <p>将当前数据生成完整的 index.html 文件并下载（用于部署到 GitHub Pages）</p>
+                <h4>导出网站文件</h4>
+                <p>将文章和图片数据生成完整的 index.html + main.js，打包为 zip 下载（解压后部署到 GitHub Pages）</p>
                 <div class="setting-actions">
                     <button class="btn btn-secondary btn-sm" onclick="generateHTML()">
-                        <i class="fas fa-file-code"></i> 下载 index.html
+                        <i class="fas fa-file-archive"></i> 下载网站文件
                     </button>
                 </div>
             </div>
@@ -912,27 +913,80 @@
     }
 
     function generateHTML() {
-        showToast('正在生成 HTML...', 'info');
-        fetch('index.html')
-            .then(r => r.text())
-            .then(html => {
-                const data = getData();
-                // 替换文章内容
-                let result = html;
-                // 替换 gallery images array in main.js
-                const galleryJs = data.gallery.map(img => `    '${img.src}'`).join(',\n');
-                result = result.replace(
-                    /const images = \[[\s\S]*?\];/,
-                    `const images = [\n${galleryJs}\n];`
-                );
-                const blob = new Blob([result], { type: 'text/html' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'index.html';
-                a.click();
-                showToast('HTML 已下载', 'success');
-            })
-            .catch(() => showToast('生成失败', 'error'));
+        showToast('正在生成文件...', 'info');
+        Promise.all([
+            fetch('index.html').then(r => r.text()),
+            fetch('js/main.js').then(r => r.text())
+        ]).then(([html, js]) => {
+            const data = getData();
+
+            // 1. 替换文章标题列表
+            const titleListHtml = data.articles.map((a, i) => {
+                const cls = i === 0 ? ' active' : '';
+                return `                <div class="article-title${cls}" data-article="${a.id}">${escapeHtml(a.title)}</div>`;
+            }).join('\n');
+            html = html.replace(
+                /<div class="article-list">[\s\S]*?<\/div>\s*\n\s*<!-- 右侧文章内容/,
+                `<div class="article-list">\n${titleListHtml}\n            </div>\n            \n            <!-- 右侧文章内容`
+            );
+
+            // 2. 替换文章内容区域
+            const articlesHtml = data.articles.map((a, i) => {
+                const cls = i === 0 ? ' active' : '';
+                const tagsHtml = a.tags.map(t => `                        <span class="article-tag">${escapeHtml(t)}</span>`).join('\n');
+                const sourceHtml = a.source ? `
+                        <div class="article-source">
+                            <p><strong>拓展资源</strong><br>
+                                <a href="${escapeHtml(a.source)}" target="_blank">${escapeHtml(a.source)}</a></p>
+                        </div>` : '';
+                return `                <div id="${a.id}" class="article${cls}">
+                    <h3>${escapeHtml(a.title)}</h3>
+                    ${a.body}
+${sourceHtml}
+                    <div class="article-tags">
+${tagsHtml}
+                    </div>
+                </div>`;
+            }).join('\n                \n');
+            html = html.replace(
+                /<div class="article-content">[\s\S]*?<\/div>\s*\n\s*<\/div>\s*\n\s*<\/section>/,
+                `<div class="article-content">\n${articlesHtml}\n            </div>\n        </div>\n    </section>`
+            );
+
+            // 3. 替换 main.js 中的 gallery images 数组
+            const galleryJs = data.gallery.map(img => `    '${img.src}'`).join(',\n');
+            js = js.replace(
+                /const images = \[[\s\S]*?\];/,
+                `const images = [\n${galleryJs}\n];`
+            );
+
+            // 4. 打包下载为 zip（使用 JSZip CDN）
+            if (typeof JSZip !== 'undefined') {
+                const zip = new JSZip();
+                zip.file('index.html', html);
+                zip.file('js/main.js', js);
+                zip.generateAsync({ type: 'blob' }).then(blob => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'anki_website_' + new Date().toISOString().slice(0,10) + '.zip';
+                    a.click();
+                    showToast('文件已下载，解压后部署到 GitHub Pages', 'success');
+                });
+            } else {
+                // 降级：分别下载
+                downloadFile('index.html', html, 'text/html');
+                setTimeout(() => downloadFile('main.js', js, 'application/javascript'), 500);
+                showToast('文件已分别下载，请替换对应文件后部署', 'success');
+            }
+        }).catch(() => showToast('生成失败', 'error'));
+    }
+
+    function downloadFile(name, content, type) {
+        const blob = new Blob([content], { type });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
     }
 
     // ============ 工具函数 ============
